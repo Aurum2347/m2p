@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown2PDF</title>
-    <!-- Font Awesome -->
+    <!-- Font Awesome (без пробелов!) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- KaTeX (математика) -->
+    <!-- KaTeX (формулы) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <style>
         :root {
@@ -45,7 +45,6 @@
             flex-direction: column;
         }
 
-        /* MODALS */
         .modal-backdrop {
             position: fixed;
             top: 0;
@@ -110,7 +109,6 @@
             color: var(--accent-color);
         }
 
-        /* MAIN LAYOUT */
         .header {
             background-color: rgba(34, 40, 55, 0.85);
             backdrop-filter: blur(6px);
@@ -256,23 +254,23 @@
             font-size: 0.84rem;
         }
 
-        /* Увеличенное поле имени */
+        /* Увеличенное и сдвинутое поле имени */
         .document-input-group {
             display: flex;
             align-items: center;
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 4px;
-            max-width: 200px; /* больше */
-            margin-left: -10px; /* сдвинуто левее */
+            max-width: 200px;
+            margin-left: -8px;
         }
 
         .document-input-group input {
             background: transparent;
             border: none;
             color: var(--text-primary);
-            padding: 0.35rem 0.6rem; /* больше отступы */
-            font-size: 0.92rem; /* крупнее */
+            padding: 0.35rem 0.6rem;
+            font-size: 0.92rem;
             outline: none;
             width: 130px;
         }
@@ -325,11 +323,10 @@
             width: 75%;
             min-width: 300px;
             max-width: 800px;
-            /* Умное разбиение страниц при печати */
             page-break-inside: avoid;
         }
 
-        /* 🔑 Списки — правильные отступы */
+        /* Списки — правильные отступы */
         .preview-content ul,
         .preview-content ol {
             padding-left: 1.5rem;
@@ -340,7 +337,7 @@
             margin-bottom: 0.4rem;
         }
 
-        /* 🔑 Блоки кода */
+        /* Код */
         .preview-content code {
             background: var(--code-bg);
             border: 1px solid var(--code-border);
@@ -367,7 +364,7 @@
             padding: 0;
         }
 
-        /* 🔑 Таблицы */
+        /* 🔑 ТАБЛИЦЫ — КОНТРАСТНЫЕ РАМКИ */
         .preview-content table {
             width: 100%;
             table-layout: fixed;
@@ -379,24 +376,24 @@
 
         .preview-content th,
         .preview-content td {
-            border: 1px solid #dee2e6 !important;
+            border: 1px solid #999999 !important; /* Было #dee2e6 — почти невидимо */
             padding: 0.6rem;
             text-align: left;
             word-wrap: break-word;
             font-size: inherit;
         }
 
-        /* 🔑 Разрывы страниц */
+        /* Разрыв страницы */
         .preview-content .page-break {
             page-break-after: always;
             break-after: page;
             height: 1px;
             margin: 2rem 0;
             border: none;
-            border-top: 1px dashed #ccc;
+            border-top: 1px dashed #aaa;
         }
 
-        /* Контейнер для подписи */
+        /* Подпись внизу */
         .footer-container {
             display: flex;
             justify-content: space-between;
@@ -562,29 +559,26 @@
                 </div>
                 <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш Markdown..."># Пример документа
 
-Поддержка **формул**:  
-$$ E = mc^2 $$
+Формулы:
+- Inline: $ E = mc^2 $
+- Block: 
+$$
+\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+$$
 
 Списки:
-- Пункт 1
-- Пункт 2
+- Пункт
   - Вложенный
-- Пункт 3
 
-Нумерация:
-1. Первый
-2. Второй
-   1. Вложенный
+Таблица:
+| X | Y |
+|---|---|
+| 1 | 2 |
 
 Код:
 ```js
-console.log("Hello, world!");
+const x = 42;
 ```
-
-Таблица:
-| A | B |
-|---|---|
-| 1 | 2 |
 
 ---
 
@@ -617,9 +611,7 @@ console.log("Hello, world!");
                     <div class="preview-content" id="previewContent"></div>
                 </div>
                 <div class="footer-container">
-                    <div>
-                        Документ: <strong id="docNameLabel">document.pdf</strong>
-                    </div>
+                    <div>Документ: <strong id="docNameLabel">document.pdf</strong></div>
                     <div>
                         <span class="footer-made-by">By Aurum2347</span><br>
                         <span class="footer-slogan">Делаем для ЛЮДЕЙ, а не по ГОСТ-у.</span>
@@ -629,7 +621,7 @@ console.log("Hello, world!");
         </div>
     </div>
 
-    <!-- Библиотеки -->
+    <!-- 🔑 Библиотеки — ВСЁ ЧЕРЕЗ CDN, БЕЗ ПРОБЕЛОВ -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
@@ -638,13 +630,10 @@ console.log("Hello, world!");
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
-        // Поддержка формул
+        // Настройка marked
         marked.setOptions({
             breaks: true,
-            gfm: true,
-            highlight: function(code, lang) {
-                return code; // KaTeX сам обработает
-            }
+            gfm: true
         });
 
         const editor = document.getElementById('markdownEditor');
@@ -657,18 +646,19 @@ console.log("Hello, world!");
         function updatePreview() {
             const html = marked.parse(editor.value);
             preview.innerHTML = html;
-            // Обновляем подпись
             docNameLabel.textContent = documentNameInput.value + '.pdf';
-            // Отрисовываем формулы
+            
+            // 🔑 Рендерим формулы после вставки HTML
             renderMathInElement(preview, {
                 delimiters: [
                     {left: "$$", right: "$$", display: true},
                     {left: "$", right: "$", display: false}
-                ]
+                ],
+                throwOnError: false
             });
         }
 
-        // Кнопки форматирования — без изменений
+        // Кнопки форматирования
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const format = btn.getAttribute('data-format');
@@ -698,9 +688,8 @@ console.log("Hello, world!");
             preview.style.fontSize = fontSizeSelect.value + 'px';
         });
 
-        // Экспорт с поддержкой разрывов
+        // Экспорт в PDF
         downloadBtn.addEventListener('click', () => {
-            // Добавляем CSS для разрывов при печати
             const style = document.createElement('style');
             style.innerHTML = `
                 @media print {
@@ -725,7 +714,6 @@ console.log("Hello, world!");
             };
             html2pdf().from(preview).set(opt).save();
 
-            // Удаляем временный стиль
             setTimeout(() => document.head.removeChild(style), 1000);
         });
 
