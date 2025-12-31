@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown2PDF</title>
-    <!-- Font Awesome (без пробелов!) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- KaTeX (формулы) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <style>
         :root {
@@ -254,7 +252,6 @@
             font-size: 0.84rem;
         }
 
-        /* Увеличенное и сдвинутое поле имени */
         .document-input-group {
             display: flex;
             align-items: center;
@@ -326,7 +323,6 @@
             page-break-inside: avoid;
         }
 
-        /* Списки — правильные отступы */
         .preview-content ul,
         .preview-content ol {
             padding-left: 1.5rem;
@@ -337,7 +333,6 @@
             margin-bottom: 0.4rem;
         }
 
-        /* Код */
         .preview-content code {
             background: var(--code-bg);
             border: 1px solid var(--code-border);
@@ -364,7 +359,6 @@
             padding: 0;
         }
 
-        /* 🔑 ТАБЛИЦЫ — КОНТРАСТНЫЕ РАМКИ */
         .preview-content table {
             width: 100%;
             table-layout: fixed;
@@ -376,14 +370,13 @@
 
         .preview-content th,
         .preview-content td {
-            border: 1px solid #999999 !important; /* Было #dee2e6 — почти невидимо */
+            border: 1px solid #999999 !important;
             padding: 0.6rem;
             text-align: left;
             word-wrap: break-word;
             font-size: inherit;
         }
 
-        /* Разрыв страницы */
         .preview-content .page-break {
             page-break-after: always;
             break-after: page;
@@ -393,7 +386,6 @@
             border-top: 1px dashed #aaa;
         }
 
-        /* Подпись внизу */
         .footer-container {
             display: flex;
             justify-content: space-between;
@@ -452,7 +444,6 @@
     </style>
 </head>
 <body>
-    <!-- Modals (без изменений) -->
     <div class="modal-backdrop" id="modalInfo">
         <div class="modal-content">
             <div class="modal-header">
@@ -597,7 +588,7 @@ const x = 42;
                             <option value="20">20px</option>
                         </select>
                     </div>
-                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <div style="display:flex;gap:0.75rem;align-items:center;">
                         <div class="document-input-group">
                             <input type="text" id="documentName" value="document">
                             <div class="document-extension">.pdf</div>
@@ -621,7 +612,7 @@ const x = 42;
         </div>
     </div>
 
-    <!-- 🔑 Библиотеки — ВСЁ ЧЕРЕЗ CDN, БЕЗ ПРОБЕЛОВ -->
+    <!-- 🔥 Все CDN-ссылки БЕЗ ПРОБЕЛОВ -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
@@ -630,11 +621,7 @@ const x = 42;
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
-        // Настройка marked
-        marked.setOptions({
-            breaks: true,
-            gfm: true
-        });
+        marked.setOptions({ breaks: true, gfm: true });
 
         const editor = document.getElementById('markdownEditor');
         const preview = document.getElementById('previewContent');
@@ -647,8 +634,6 @@ const x = 42;
             const html = marked.parse(editor.value);
             preview.innerHTML = html;
             docNameLabel.textContent = documentNameInput.value + '.pdf';
-            
-            // 🔑 Рендерим формулы после вставки HTML
             renderMathInElement(preview, {
                 delimiters: [
                     {left: "$$", right: "$$", display: true},
@@ -658,7 +643,6 @@ const x = 42;
             });
         }
 
-        // Кнопки форматирования
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const format = btn.getAttribute('data-format');
@@ -688,23 +672,15 @@ const x = 42;
             preview.style.fontSize = fontSizeSelect.value + 'px';
         });
 
-        // Экспорт в PDF
         downloadBtn.addEventListener('click', () => {
             const style = document.createElement('style');
             style.innerHTML = `
                 @media print {
-                    .preview-content > * {
-                        page-break-inside: avoid;
-                        break-inside: avoid;
-                    }
-                    .page-break {
-                        page-break-after: always !important;
-                        break-after: page !important;
-                    }
+                    .preview-content > * { page-break-inside: avoid; break-inside: avoid; }
+                    .page-break { page-break-after: always !important; break-after: page !important; }
                 }
             `;
             document.head.appendChild(style);
-
             const opt = {
                 margin: 10,
                 filename: `${documentNameInput.value || 'document'}.pdf`,
@@ -713,11 +689,9 @@ const x = 42;
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
             html2pdf().from(preview).set(opt).save();
-
             setTimeout(() => document.head.removeChild(style), 1000);
         });
 
-        // Модалки
         document.querySelectorAll('[data-modal]').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.getElementById(btn.dataset.modal).classList.add('active');
