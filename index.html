@@ -8,7 +8,6 @@
     <style>
         :root {
             --bg-primary: #1a1f2b;
-            --bg-secondary: #222837;
             --bg-panel: #252b3a;
             --bg-toolbar: #2d3445;
             --border-color: #3a4154;
@@ -30,7 +29,7 @@
 
         html, body {
             height: 100%;
-            overflow: hidden; /* Запрещаем прокрутку всей страницы */
+            overflow: hidden;
         }
 
         body {
@@ -41,7 +40,6 @@
             flex-direction: column;
         }
 
-        /* === Modals === */
         .modal-backdrop {
             position: fixed;
             top: 0;
@@ -143,7 +141,6 @@
             transform: translateY(-1px);
         }
 
-        /* === Header === */
         .header {
             background-color: rgba(34, 40, 55, 0.85);
             backdrop-filter: blur(6px);
@@ -185,12 +182,11 @@
             border-color: var(--accent-color);
         }
 
-        /* === Main Content === */
         .main-container {
             flex: 1;
             display: flex;
-            padding: 1.2rem 2.4rem 1.2rem 2.4rem; /* Нижний отступ для комфорта */
-            gap: 1rem;
+            padding: 1.2rem 2.4rem;
+            gap: 1.2rem;
             overflow: hidden;
         }
 
@@ -270,18 +266,12 @@
             flex-shrink: 0;
         }
 
-        .font-size-control {
-            display: flex;
-            align-items: center;
-            gap: 0.55rem;
-        }
-
         .font-size-control label {
             font-size: 0.84rem;
             color: var(--text-secondary);
         }
 
-        .font-size-select {
+        .font-size-select, .document-input-group input {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
@@ -297,16 +287,6 @@
             border: 1px solid var(--border-color);
             border-radius: 4px;
             max-width: 170px;
-        }
-
-        .document-input-group input {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            padding: 0.22rem 0.45rem;
-            font-size: 0.86rem;
-            outline: none;
-            width: 110px;
         }
 
         .document-extension {
@@ -359,65 +339,35 @@
             max-width: 800px;
         }
 
-        .preview-content h1 {
-            color: var(--preview-text);
-            margin-bottom: 0.9rem;
-            font-size: 1.45rem;
-            font-weight: 600;
-        }
-
-        .preview-content h2 {
-            color: var(--preview-text);
-            margin: 1.1rem 0 0.7rem 0;
-            font-size: 1.15rem;
-            font-weight: 600;
-        }
-
-        .preview-content p {
-            margin-bottom: 0.8rem;
-            font-size: 1rem;
-            color: #495057;
-        }
-
-        .preview-content hr {
-            margin: 2rem 0;
-            border: none;
-            border-top: 1px solid #dee2e6;
-        }
+        /* 🔑 ВАЖНО: стили для таблиц */
         .preview-content table {
             width: 100%;
-            table-layout: fixed; /* фиксирует ширину колонок */
-            border-collapse: separate !important; /* collapse не работает в PDF */
+            table-layout: fixed;
+            border-collapse: separate !important;
             border-spacing: 0;
             margin: 1rem 0;
-            font-size: inherit; /* чтобы не наследовался странный размер */
+            font-size: inherit;
         }
-        
+
         .preview-content th,
         .preview-content td {
             border: 1px solid #dee2e6 !important;
             padding: 0.5rem;
             text-align: left;
             word-wrap: break-word;
-            font-size: inherit; /* 🔑 критично: иначе шрифт "плавает" */
+            font-size: inherit;
         }
-        .preview-info {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 6px;
-            padding: 0.75rem;
-            margin-top: 1.4rem;
-            font-size: 0.88rem;
-            color: #495057;
+
+        .preview-info-container {
+            padding: 0 1.2rem 1rem;
+            font-size: 0.86rem;
+            color: var(--text-secondary);
         }
 
         .footer {
             position: absolute;
             bottom: 12px;
             left: 28px;
-            display: flex;
-            flex-direction: column;
-            gap: 0.1rem;
             font-size: 0.88rem;
             z-index: 10;
         }
@@ -432,7 +382,6 @@
             color: var(--text-secondary);
         }
 
-        /* Scrollbars */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -445,10 +394,6 @@
         ::-webkit-scrollbar-thumb {
             background: var(--border-color);
             border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4a5265;
         }
 
         @media (max-width: 992px) {
@@ -530,7 +475,6 @@
         </div>
     </div>
 
-    <!-- Header -->
     <div class="header">
         <div class="header-title">Markdown2PDF</div>
         <div class="header-buttons">
@@ -549,13 +493,11 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-container">
         <div class="content-area">
-            <!-- Left Panel - Editor -->
             <div class="panel">
                 <div class="toolbar">
-                    <button class="tool-btn" title="Жирный текст" data-format="bold">
+                    <button class="tool-btn" title="Жирный" data-format="bold">
                         <i class="fas fa-bold"></i> Жирный
                     </button>
                     <button class="tool-btn" title="Курсив" data-format="italic">
@@ -570,32 +512,27 @@
                     <button class="tool-btn" title="Таблица" data-format="table">
                         <i class="fas fa-table"></i> Таблица
                     </button>
-                    <button class="tool-btn" title="Разрыв страницы" data-format="pageBreak">
+                    <button class="tool-btn" title="Разрыв" data-format="pageBreak">
                         <i class="fas fa-scissors"></i> Разрыв
                     </button>
                 </div>
-                <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш Markdown текст здесь..."># Добро пожаловать в Markdown2PDF
+                <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш Markdown..."># Добро пожаловать!
 
-Начните писать здесь...
+Это **жирный** и *курсив*.
 
-## Пример заголовка
-
-Это **жирный текст** и *курсивный текст*.
-
-[Пример ссылки](https://example.com)
-
-![Пример изображения](https://placehold.co/400x200)
-
-| Колонка 1 | Колонка 2 |
+| Колонка A | Колонка B |
 |-----------|-----------|
 | Данные 1  | Данные 2  |
 
+[Пример ссылки](https://example.com)
+
+![Изображение](https://placehold.co/400x200)
+
 ---
 
-Это разрыв страницы.</textarea>
+Разрыв страницы.</textarea>
             </div>
 
-            <!-- Right Panel - Preview -->
             <div class="panel">
                 <div class="preview-header">
                     <div class="font-size-control">
@@ -619,9 +556,10 @@
                     </div>
                 </div>
                 <div class="preview">
-                    <div class="preview-content" id="previewContent">
-                        <!-- Сюда будет вставляться HTML -->
-                    </div>
+                    <div class="preview-content" id="previewContent"></div>
+                </div>
+                <div class="preview-info-container">
+                    Документ: <strong id="docNameLabel">document.pdf</strong>
                 </div>
             </div>
         </div>
@@ -632,39 +570,33 @@
         <div class="footer-line2">Делаем для ЛЮДЕЙ, а не по ГОСТ-у.</div>
     </div>
 
-    <!-- Подключаем библиотеки -->
-    <script src="js/marked.min.js"></script>
-    <!-- В head или перед </body> -->
+    <!-- 🔑 Подключаем библиотеки с зависимостями -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <script>
-        // Настройка marked
-        marked.setOptions({
-            breaks: true,
-            gfm: true
-        });
+        marked.setOptions({ breaks: true, gfm: true });
 
         const editor = document.getElementById('markdownEditor');
         const preview = document.getElementById('previewContent');
         const downloadBtn = document.getElementById('downloadPdf');
         const documentNameInput = document.getElementById('documentName');
+        const docNameLabel = document.getElementById('docNameLabel');
         const fontSizeSelect = document.getElementById('fontSizeSelect');
 
-        // Функция обновления превью
         function updatePreview() {
-            const markdown = editor.value;
-            const html = marked.parse(markdown);
+            preview.innerHTML = marked.parse(editor.value);
+            docNameLabel.textContent = documentNameInput.value + '.pdf';
         }
 
-        // Форматирование через кнопки
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const format = btn.getAttribute('data-format');
                 const start = editor.selectionStart;
                 const end = editor.selectionEnd;
                 let newText = '';
-
                 const selected = editor.value.substring(start, end);
                 switch(format) {
                     case 'bold': newText = `**${selected}**`; break;
@@ -674,42 +606,38 @@
                     case 'table': newText = '\n| Заголовок 1 | Заголовок 2 |\n|-------------|-------------|\n| Ячейка 1    | Ячейка 2    |\n';
                     case 'pageBreak': newText = '\n\n---\n\n';
                 }
-
                 editor.value = editor.value.substring(0, start) + newText + editor.value.substring(end);
                 editor.focus();
                 updatePreview();
             });
         });
 
-        // События
         editor.addEventListener('input', updatePreview);
-        documentNameInput.addEventListener('input', updatePreview);
+        documentNameInput.addEventListener('input', () => {
+            docNameLabel.textContent = documentNameInput.value + '.pdf';
+        });
         fontSizeSelect.addEventListener('change', () => {
             preview.style.fontSize = fontSizeSelect.value + 'px';
         });
 
-        // Экспорт в PDF
         downloadBtn.addEventListener('click', () => {
-            const element = document.getElementById('previewContent');
             const opt = {
                 margin: 10,
                 filename: `${documentNameInput.value || 'document'}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            html2pdf().from(element).set(opt).save();
+            html2pdf().from(preview).set(opt).save();
         });
 
         // Модалки
         document.querySelectorAll('[data-modal]').forEach(btn => {
             btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-modal');
-                document.getElementById(id).classList.add('active');
+                document.getElementById(btn.dataset.modal).classList.add('active');
                 document.body.style.overflow = 'hidden';
             });
         });
-
         document.querySelectorAll('.close-modal, .modal-backdrop').forEach(el => {
             el.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal-backdrop') || e.target.classList.contains('close-modal')) {
@@ -719,7 +647,6 @@
             });
         });
 
-        // Инициализация
         updatePreview();
     </script>
 </body>
