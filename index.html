@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown2PDF</title>
-    <!-- Font Awesome (CDN — стабильно) -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- KaTeX CSS -->
+    <!-- KaTeX -->
     <link rel="stylesheet" href="css/katex.min.css">
     <style>
         :root {
             --bg-primary: #1a1f2b;
+            --bg-secondary: #222837;
             --bg-panel: #252b3a;
             --bg-toolbar: #2d3445;
             --border-color: #3a4154;
@@ -45,6 +46,7 @@
             flex-direction: column;
         }
 
+        /* Modals */
         .modal-backdrop {
             position: fixed;
             top: 0;
@@ -146,6 +148,7 @@
             transform: translateY(-1px);
         }
 
+        /* Header */
         .header {
             background-color: rgba(34, 40, 55, 0.85);
             backdrop-filter: blur(6px);
@@ -187,6 +190,7 @@
             border-color: var(--accent-color);
         }
 
+        /* Main Layout */
         .main-container {
             flex: 1;
             display: flex;
@@ -363,6 +367,7 @@
             overflow: visible !important;
         }
 
+        /* Списки */
         .preview-content ul,
         .preview-content ol {
             padding-left: 1.5rem;
@@ -373,6 +378,7 @@
             margin-bottom: 0.4rem;
         }
 
+        /* Код */
         .preview-content code {
             background: var(--code-bg);
             border: 1px solid var(--code-border);
@@ -399,6 +405,7 @@
             padding: 0;
         }
 
+        /* Таблицы */
         .preview-content table {
             width: 100%;
             table-layout: fixed;
@@ -417,6 +424,7 @@
             font-size: inherit;
         }
 
+        /* Разрыв страницы */
         .preview-content .page-break {
             page-break-after: always;
             break-after: page;
@@ -426,6 +434,7 @@
             border-top: 1px dashed #aaa;
         }
 
+        /* Подвал */
         .footer-container {
             display: flex;
             justify-content: space-between;
@@ -444,6 +453,7 @@
             color: var(--text-secondary);
         }
 
+        /* Скроллбары */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -458,6 +468,11 @@
             border-radius: 3px;
         }
 
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a5265;
+        }
+
+        /* Адаптив */
         @media (max-width: 992px) {
             .content-area {
                 grid-template-columns: 1fr;
@@ -548,6 +563,7 @@
         </div>
     </div>
 
+    <!-- Header -->
     <div class="header">
         <div class="header-title">Markdown2PDF</div>
         <div class="header-buttons">
@@ -566,6 +582,7 @@
         </div>
     </div>
 
+    <!-- Main Content -->
     <div class="main-container">
         <div class="content-area">
             <div class="panel">
@@ -589,39 +606,40 @@
                         <i class="fas fa-scissors"></i> Разрыв
                     </button>
                 </div>
-                <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш Markdown..."># Пример документа
+                <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш Markdown..."># Формулы LaTeX
 
-## LaTeX формулы
+Inline: $ E = mc^2 $
 
-### Inline:
-$ E = mc^2 $  
-\( \sqrt{a^2 + b^2} \)
-
-### Block:
+Блочная формула:
 $$
 \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
 $$
 
+Система уравнений:
 \[
-\begin{cases}
-x + y = 5 \\
-x - y = 1
-\end{cases}
+\begin{aligned}
+H_0 &= 67.4 \pm 0.5 \text{ км/с/Мпк} \quad &\text{(постоянная Хаббла)} \\
+\Omega_m &= 0.315 \pm 0.007 \quad &\text{(плотность материи)} \\
+\Omega_\Lambda &= 0.685 \pm 0.007 \quad &\text{(темная энергия)}
+\end{aligned}
 \]
 
 ## Списки
-- Пункт
+- Обычный
   - Вложенный
-1. Нумерация
+1. Нумерованный
 
 ## Таблица
-| A | B |
-|---|---|
-| 1 | 2 |
+| Параметр | Значение |
+|----------|----------|
+| $H_0$    | 67.4     |
+| $\Omega_m$ | 0.315  |
 
 ## Код
 ```js
-console.log("Hello");
+function hello() {
+    console.log("Работает!");
+}
 ```
 
 ---
@@ -686,6 +704,7 @@ console.log("Hello");
             preview.innerHTML = html;
             docNameLabel.textContent = documentNameInput.value + '.pdf';
             
+            // 🔑 Поддержка ВСЕХ LaTeX-окружений (включая aligned)
             renderMathInElement(preview, {
                 delimiters: [
                     {left: "$$", right: "$$", display: true},
@@ -693,10 +712,12 @@ console.log("Hello");
                     {left: "$", right: "$", display: false},
                     {left: "\\(", right: "\\)", display: false}
                 ],
-                throwOnError: false
+                throwOnError: false,
+                trust: false
             });
         }
 
+        // Кнопки форматирования
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const format = btn.getAttribute('data-format');
@@ -726,39 +747,36 @@ console.log("Hello");
             preview.style.fontSize = fontSizeSelect.value + 'px';
         });
 
-        // 🔑 ФИНАЛЬНАЯ НАСТРОЙКА ЭКСПОРТА — БЕЗ ОБРЕЗКИ
+        // 🔑 Экспорт в PDF — защищён от обрезки
         downloadBtn.addEventListener('click', () => {
-            preview.style.overflow = 'visible';
-            
+            // Клонируем контент, чтобы изолировать от стилей
+            const clone = preview.cloneNode(true);
+            clone.style.width = '210mm';
+            clone.style.padding = '20mm 15mm';
+            clone.style.margin = '0';
+            clone.style.boxShadow = 'none';
+            clone.style.fontSize = '12pt';
+            clone.style.lineHeight = '1.5';
+            clone.style.overflow = 'visible';
+
+            // Применяем стили для формул
             const style = document.createElement('style');
-            style.innerHTML = `
-                @media print {
-                    .preview-content > * { 
-                        page-break-inside: avoid; 
-                        break-inside: avoid; 
-                    }
-                    .page-break { 
-                        page-break-after: always !important; 
-                        break-after: page !important; 
-                    }
-                }
-                .preview-content * {
-                    line-height: 1.5 !important;
-                    padding-bottom: 2px !important;
-                }
+            style.textContent = `
+                .katex { font-size: 1.1em !important; }
+                * { padding-bottom: 1px !important; }
             `;
-            document.head.appendChild(style);
+            clone.appendChild(style);
 
             const opt = {
-                margin: [10, 10, 10, 10],
+                margin: 0,
                 filename: `${documentNameInput.value || 'document'}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
-                    scale: 1.5,
+                    scale: 1.3,
                     useCORS: true,
                     scrollY: -window.scrollY,
                     letterRendering: true,
-                    windowWidth: 800
+                    windowHeight: 10000 // предотвращает обрезку
                 },
                 jsPDF: { 
                     unit: 'mm', 
@@ -766,11 +784,8 @@ console.log("Hello");
                     orientation: 'portrait' 
                 }
             };
-            
-            html2pdf().from(preview).set(opt).save().finally(() => {
-                preview.style.overflow = '';
-                document.head.removeChild(style);
-            });
+
+            html2pdf().from(clone).set(opt).save();
         });
 
         // Модальные окна
@@ -789,6 +804,7 @@ console.log("Hello");
             });
         });
 
+        // Инициализация
         updatePreview();
     </script>
 </body>
