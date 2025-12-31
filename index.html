@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown2PDF</title>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- KaTeX (математика) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <style>
         :root {
             --bg-primary: #1a1f2b;
@@ -19,6 +22,8 @@
             --preview-text: #1a1f2b;
             --modal-bg: #1e2433;
             --modal-border: #353d4e;
+            --code-bg: #f8f9fa;
+            --code-border: #e9ecef;
         }
 
         * {
@@ -40,6 +45,7 @@
             flex-direction: column;
         }
 
+        /* MODALS */
         .modal-backdrop {
             position: fixed;
             top: 0;
@@ -104,43 +110,7 @@
             color: var(--accent-color);
         }
 
-        .modal-body h2 {
-            margin: 1rem 0 0.8rem;
-            font-size: 1.2rem;
-            color: var(--accent-color);
-        }
-
-        .modal-body p, .modal-body blockquote {
-            margin-bottom: 1rem;
-            line-height: 1.6;
-            font-size: 0.98rem;
-        }
-
-        .modal-body blockquote {
-            border-left: 3px solid var(--accent-color);
-            padding-left: 1rem;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        .modal-link-btn {
-            display: inline-block;
-            background: var(--accent-color);
-            color: white;
-            padding: 0.55rem 1.2rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            margin-top: 0.5rem;
-            transition: background 0.2s;
-            border: 1px solid var(--accent-color);
-        }
-
-        .modal-link-btn:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
-        }
-
+        /* MAIN LAYOUT */
         .header {
             background-color: rgba(34, 40, 55, 0.85);
             backdrop-filter: blur(6px);
@@ -185,7 +155,7 @@
         .main-container {
             flex: 1;
             display: flex;
-            padding: 1.2rem 2.4rem;
+            padding: 1.2rem 2.4rem 0.8rem;
             gap: 1.2rem;
             overflow: hidden;
         }
@@ -266,12 +236,18 @@
             flex-shrink: 0;
         }
 
+        .font-size-control {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
         .font-size-control label {
             font-size: 0.84rem;
             color: var(--text-secondary);
         }
 
-        .font-size-select, .document-input-group input {
+        .font-size-select {
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
@@ -280,21 +256,33 @@
             font-size: 0.84rem;
         }
 
+        /* Увеличенное поле имени */
         .document-input-group {
             display: flex;
             align-items: center;
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 4px;
-            max-width: 170px;
+            max-width: 200px; /* больше */
+            margin-left: -10px; /* сдвинуто левее */
+        }
+
+        .document-input-group input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 0.35rem 0.6rem; /* больше отступы */
+            font-size: 0.92rem; /* крупнее */
+            outline: none;
+            width: 130px;
         }
 
         .document-extension {
             color: var(--text-secondary);
-            padding: 0.22rem 0.45rem;
-            font-size: 0.86rem;
+            padding: 0.35rem 0.6rem;
+            font-size: 0.92rem;
             border-left: 1px solid var(--border-color);
-            min-width: 30px;
+            min-width: 34px;
             text-align: center;
         }
 
@@ -302,9 +290,9 @@
             background: var(--accent-color);
             color: white;
             border: 1px solid var(--accent-color);
-            padding: 0.25rem 0.75rem;
+            padding: 0.3rem 0.85rem;
             border-radius: 4px;
-            font-size: 0.86rem;
+            font-size: 0.88rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -337,47 +325,92 @@
             width: 75%;
             min-width: 300px;
             max-width: 800px;
+            /* Умное разбиение страниц при печати */
+            page-break-inside: avoid;
         }
 
-        /* 🔑 ВАЖНО: стили для таблиц */
+        /* 🔑 Списки — правильные отступы */
+        .preview-content ul,
+        .preview-content ol {
+            padding-left: 1.5rem;
+            margin: 0.8rem 0;
+        }
+
+        .preview-content li {
+            margin-bottom: 0.4rem;
+        }
+
+        /* 🔑 Блоки кода */
+        .preview-content code {
+            background: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 3px;
+            padding: 0.15rem 0.3rem;
+            font-family: Consolas, monospace;
+            font-size: 0.95em;
+        }
+
+        .preview-content pre {
+            background: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1.2rem 0;
+            overflow-x: auto;
+            font-family: Consolas, monospace;
+            font-size: 0.95em;
+        }
+
+        .preview-content pre code {
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        /* 🔑 Таблицы */
         .preview-content table {
             width: 100%;
             table-layout: fixed;
             border-collapse: separate !important;
             border-spacing: 0;
-            margin: 1rem 0;
+            margin: 1.2rem 0;
             font-size: inherit;
         }
 
         .preview-content th,
         .preview-content td {
             border: 1px solid #dee2e6 !important;
-            padding: 0.5rem;
+            padding: 0.6rem;
             text-align: left;
             word-wrap: break-word;
             font-size: inherit;
         }
 
-        .preview-info-container {
-            padding: 0 1.2rem 1rem;
+        /* 🔑 Разрывы страниц */
+        .preview-content .page-break {
+            page-break-after: always;
+            break-after: page;
+            height: 1px;
+            margin: 2rem 0;
+            border: none;
+            border-top: 1px dashed #ccc;
+        }
+
+        /* Контейнер для подписи */
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 1.2rem 0.6rem;
             font-size: 0.86rem;
             color: var(--text-secondary);
         }
 
-        .footer {
-            position: absolute;
-            bottom: 12px;
-            left: 28px;
-            font-size: 0.88rem;
-            z-index: 10;
-        }
-
-        .footer-line1 {
+        .footer-made-by {
             font-weight: 600;
             color: var(--accent-color);
         }
 
-        .footer-line2 {
+        .footer-slogan {
             font-weight: 500;
             color: var(--text-secondary);
         }
@@ -401,17 +434,28 @@
                 grid-template-columns: 1fr;
             }
             .main-container {
-                padding: 1rem 1.5rem;
+                padding: 1rem 1.5rem 0.5rem;
             }
             .preview-content {
                 width: 95%;
                 padding: 1.5rem 1rem;
             }
+            .document-input-group {
+                max-width: 160px;
+                margin-left: 0;
+            }
+            .document-input-group input {
+                width: 110px;
+                font-size: 0.88rem;
+            }
+            .document-extension {
+                font-size: 0.88rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Modals -->
+    <!-- Modals (без изменений) -->
     <div class="modal-backdrop" id="modalInfo">
         <div class="modal-content">
             <div class="modal-header">
@@ -516,17 +560,31 @@
                         <i class="fas fa-scissors"></i> Разрыв
                     </button>
                 </div>
-                <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш Markdown..."># Добро пожаловать!
+                <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш Markdown..."># Пример документа
 
-Это **жирный** и *курсив*.
+Поддержка **формул**:  
+$$ E = mc^2 $$
 
-| Колонка A | Колонка B |
-|-----------|-----------|
-| Данные 1  | Данные 2  |
+Списки:
+- Пункт 1
+- Пункт 2
+  - Вложенный
+- Пункт 3
 
-[Пример ссылки](https://example.com)
+Нумерация:
+1. Первый
+2. Второй
+   1. Вложенный
 
-![Изображение](https://placehold.co/400x200)
+Код:
+```js
+console.log("Hello, world!");
+```
+
+Таблица:
+| A | B |
+|---|---|
+| 1 | 2 |
 
 ---
 
@@ -558,26 +616,36 @@
                 <div class="preview">
                     <div class="preview-content" id="previewContent"></div>
                 </div>
-                <div class="preview-info-container">
-                    Документ: <strong id="docNameLabel">document.pdf</strong>
+                <div class="footer-container">
+                    <div>
+                        Документ: <strong id="docNameLabel">document.pdf</strong>
+                    </div>
+                    <div>
+                        <span class="footer-made-by">By Aurum2347</span><br>
+                        <span class="footer-slogan">Делаем для ЛЮДЕЙ, а не по ГОСТ-у.</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="footer">
-        <div class="footer-line1">By Aurum2347</div>
-        <div class="footer-line2">Делаем для ЛЮДЕЙ, а не по ГОСТ-у.</div>
-    </div>
-
-    <!-- 🔑 Подключаем библиотеки с зависимостями -->
+    <!-- Библиотеки -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
-        marked.setOptions({ breaks: true, gfm: true });
+        // Поддержка формул
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            highlight: function(code, lang) {
+                return code; // KaTeX сам обработает
+            }
+        });
 
         const editor = document.getElementById('markdownEditor');
         const preview = document.getElementById('previewContent');
@@ -587,10 +655,20 @@
         const fontSizeSelect = document.getElementById('fontSizeSelect');
 
         function updatePreview() {
-            preview.innerHTML = marked.parse(editor.value);
+            const html = marked.parse(editor.value);
+            preview.innerHTML = html;
+            // Обновляем подпись
             docNameLabel.textContent = documentNameInput.value + '.pdf';
+            // Отрисовываем формулы
+            renderMathInElement(preview, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ]
+            });
         }
 
+        // Кнопки форматирования — без изменений
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const format = btn.getAttribute('data-format');
@@ -620,7 +698,24 @@
             preview.style.fontSize = fontSizeSelect.value + 'px';
         });
 
+        // Экспорт с поддержкой разрывов
         downloadBtn.addEventListener('click', () => {
+            // Добавляем CSS для разрывов при печати
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @media print {
+                    .preview-content > * {
+                        page-break-inside: avoid;
+                        break-inside: avoid;
+                    }
+                    .page-break {
+                        page-break-after: always !important;
+                        break-after: page !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
             const opt = {
                 margin: 10,
                 filename: `${documentNameInput.value || 'document'}.pdf`,
@@ -629,6 +724,9 @@
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
             html2pdf().from(preview).set(opt).save();
+
+            // Удаляем временный стиль
+            setTimeout(() => document.head.removeChild(style), 1000);
         });
 
         // Модалки
