@@ -410,7 +410,7 @@
             overflow-wrap: anywhere;
         }
 
-        /* DOT diagrams — SVG контейнер */
+        /* DOT diagrams */
         .dot-diagram-container {
             text-align: center;
             margin: 1.2rem 0;
@@ -514,10 +514,8 @@
             </div>
             <div class="modal-body">
                 <h2>Markdown to PDF</h2>
-                <p>Поддержка: Markdown, LaTeX, и DOT-диаграммы (Graphviz).</p>
-                <blockquote>
-                    Используйте <code>```dot ... ```</code> — диаграммы отобразятся как изображения.
-                </blockquote>
+                <p>Поддержка: Markdown, LaTeX, DOT-диаграммы.</p>
+                <blockquote>Используйте <code>```dot ... ```</code> для диаграмм Graphviz.</blockquote>
             </div>
         </div>
     </div>
@@ -529,39 +527,8 @@
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Поставьте звезду на GitHub!</p>
                 <a href="https://github.com/Aurum2347" target="_blank" class="modal-link-btn">
-                    <i class="fab fa-github"></i> Поставить ⭐
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-backdrop" id="modalTelegram">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Telegram</div>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>Подпишитесь на канал!</p>
-                <a href="https://t.me/aurums2347" target="_blank" class="modal-link-btn">
-                    <i class="fab fa-telegram"></i> Перейти в канал
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-backdrop" id="modalGithub">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">GitHub</div>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>Исходный код на GitHub.</p>
-                <a href="https://github.com/Aurum2347" target="_blank" class="modal-link-btn">
-                    <i class="fab fa-github"></i> Перейти на GitHub
+                    <i class="fab fa-github"></i> GitHub
                 </a>
             </div>
         </div>
@@ -575,13 +542,7 @@
                 <i class="fas fa-info-circle"></i> Информация
             </button>
             <button class="header-btn" data-modal="modalThank">
-                <i class="fas fa-heart"></i> Поблагодарить
-            </button>
-            <button class="header-btn" data-modal="modalTelegram">
-                <i class="fab fa-telegram"></i> Telegram
-            </button>
-            <button class="header-btn" data-modal="modalGithub">
-                <i class="fab fa-github"></i> GitHub
+                <i class="fas fa-heart"></i> GitHub
             </button>
         </div>
     </div>
@@ -610,7 +571,7 @@
                         <i class="fas fa-scissors"></i> Разрыв
                     </button>
                 </div>
-                <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш Markdown..."># Пример DOT
+                <textarea class="editor" id="markdownEditor" placeholder="Markdown..."># Пример DOT
 
 ```dot
 digraph G {
@@ -622,14 +583,18 @@ digraph G {
 ## Формула
 $ E = mc^2 $
 
-## Длинный код
+## Список
+- Один
+- Два
+
+## Код
 ```js
-const veryLongVariableNameThatDoesNotBreakLayoutAnymore = "This will wrap properly without overflow!";
+const x = "Длинная строка, которая не должна обрезаться и должна переноситься на новую строку автоматически благодаря white-space: pre-wrap и overflow-wrap: anywhere.";
 ```
 
 ---
 
-Разрыв страницы.
+Разрыв
 </textarea>
             </div>
 
@@ -658,10 +623,7 @@ const veryLongVariableNameThatDoesNotBreakLayoutAnymore = "This will wrap proper
                 </div>
                 <div class="footer-container">
                     <div>Документ: <strong id="docNameLabel">document.pdf</strong></div>
-                    <div>
-                        <span class="footer-made-by">By Aurum2347</span><br>
-                        <span class="footer-slogan">Делаем для ЛЮДЕЙ, а не по ГОСТ-у.</span>
-                    </div>
+                    <div><span class="footer-made-by">By Aurum2347</span></div>
                 </div>
             </div>
         </div>
@@ -672,10 +634,11 @@ const veryLongVariableNameThatDoesNotBreakLayoutAnymore = "This will wrap proper
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+    <!-- ЛОКАЛЬНЫЙ Viz.js (viz-global.js переименован в viz.js) -->
     <script src="lib/viz.js"></script>
 
     <script>
-        // Marked renderer (без DOT — рендерим отдельно)
+        // Marked renderer
         const renderer = new marked.Renderer();
         renderer.hr = () => '<div class="page-break"></div>';
 
@@ -695,24 +658,6 @@ const veryLongVariableNameThatDoesNotBreakLayoutAnymore = "This will wrap proper
         const fontSizeSelect = document.getElementById('fontSizeSelect');
 
         let dotRendering = false;
-        let vizInstance = null;
-        let vizPromise = null;
-
-        // Создаём инстанс Viz один раз
-        function getVizInstance() {
-            if (!vizPromise) {
-                vizPromise = new Promise((resolve, reject) => {
-                    try {
-                        // Viz — это класс, нужно new
-                        vizInstance = new Viz({ workerURL: 'https://cdn.jsdelivr.net/npm/viz.js@2.1.2/viz.js' });
-                        resolve(vizInstance);
-                    } catch (e) {
-                        reject(e);
-                    }
-                });
-            }
-            return vizPromise;
-        }
 
         // 1. Рендер Markdown
         function renderMarkdown() {
@@ -735,26 +680,13 @@ const veryLongVariableNameThatDoesNotBreakLayoutAnymore = "This will wrap proper
             });
         }
 
-        // 2. Рендер DOT
+        // 2. Рендер DOT через Viz.js (функциональный API)
         async function renderDotDiagrams(container = preview) {
             if (dotRendering) return;
             dotRendering = true;
 
             const blocks = container.querySelectorAll('code.language-dot');
             if (blocks.length === 0) {
-                dotRendering = false;
-                return;
-            }
-
-            let instance;
-            try {
-                instance = await getVizInstance();
-            } catch (e) {
-                console.error('Viz.js init failed:', e);
-                blocks.forEach(block => {
-                    block.textContent = '⚠️ Viz.js не загружен';
-                    block.style.color = 'red';
-                });
                 dotRendering = false;
                 return;
             }
@@ -766,27 +698,34 @@ const veryLongVariableNameThatDoesNotBreakLayoutAnymore = "This will wrap proper
                 if (!code) continue;
 
                 try {
-                    const svgElement = await instance.renderSVGElement(code);
+                    const svgString = await Viz(code, { format: 'svg', engine: 'dot' });
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(svgString, 'image/svg+xml');
+                    const svg = doc.documentElement;
+
+                    if (svg.tagName !== 'svg') {
+                        throw new Error('Invalid SVG');
+                    }
+
                     const wrapper = document.createElement('div');
                     wrapper.className = 'dot-diagram-container';
-
-                    // Клонируем SVG и стилизуем
-                    const svgClone = svgElement.cloneNode(true);
-                    svgClone.classList.add('dot-diagram');
-                    svgClone.style.maxWidth = '100%';
-                    svgClone.style.height = 'auto';
-                    svgClone.style.border = '1px solid var(--code-border)';
-                    svgClone.style.borderRadius = '6px';
-                    svgClone.style.background = 'white';
-                    svgClone.style.padding = '0.5rem';
-
-                    wrapper.appendChild(svgClone);
+                    svg.classList.add('dot-diagram');
+                    Object.assign(svg.style, {
+                        maxWidth: '100%',
+                        height: 'auto',
+                        border: '1px solid var(--code-border)',
+                        borderRadius: '6px',
+                        background: 'white',
+                        padding: '0.5rem'
+                    });
+                    wrapper.appendChild(svg);
                     pre.replaceWith(wrapper);
                     wrapper.setAttribute('data-dot-rendered', 'true');
+
                 } catch (e) {
                     console.warn('DOT error:', e);
-                    block.textContent = '⚠️ Неверный DOT-код';
-                    block.style.color = '#d63031';
+                    block.textContent = '⚠️ Ошибка DOT';
+                    block.style.color = '#e17055';
                     block.style.fontFamily = 'monospace';
                 }
             }
@@ -794,13 +733,12 @@ const veryLongVariableNameThatDoesNotBreakLayoutAnymore = "This will wrap proper
             dotRendering = false;
         }
 
-        // Обновление preview
         async function updatePreview() {
             renderMarkdown();
             await renderDotDiagrams();
         }
 
-        // Форматирование
+        // Formatting buttons
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const format = btn.dataset.format;
@@ -830,7 +768,7 @@ const veryLongVariableNameThatDoesNotBreakLayoutAnymore = "This will wrap proper
             preview.style.fontSize = fontSizeSelect.value + 'px';
         });
 
-        // Экспорт в PDF
+        // Export to PDF
         downloadBtn.addEventListener('click', async () => {
             await updatePreview();
 
@@ -899,12 +837,12 @@ const veryLongVariableNameThatDoesNotBreakLayoutAnymore = "This will wrap proper
             try {
                 await html2pdf().from(clone).set(opt).save();
             } catch (e) {
-                alert('Ошибка при создании PDF');
+                alert('Ошибка PDF');
                 console.error(e);
             }
         });
 
-        // Модальные окна
+        // Modals
         document.querySelectorAll('[data-modal]').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.getElementById(btn.dataset.modal).classList.add('active');
@@ -920,7 +858,7 @@ const veryLongVariableNameThatDoesNotBreakLayoutAnymore = "This will wrap proper
             });
         });
 
-        // Старт
+        // Start
         updatePreview();
     </script>
 </body>
