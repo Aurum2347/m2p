@@ -410,7 +410,7 @@
             overflow-wrap: anywhere;
         }
 
-        /* DOT diagrams */
+        /* DOT diagrams — SVG контейнер */
         .dot-diagram-container {
             text-align: center;
             margin: 1.2rem 0;
@@ -494,28 +494,13 @@
             background: #4a5265;
         }
 
-        /* Адаптив */
         @media (max-width: 992px) {
-            .content-area {
-                grid-template-columns: 1fr;
-            }
-            .main-container {
-                padding: 1rem 1.5rem 0.5rem;
-            }
-            .preview-content {
-                width: 95%;
-                padding: 1.5rem 1rem;
-            }
-            .document-input-group {
-                max-width: 160px;
-            }
-            .document-input-group input {
-                width: 110px;
-                font-size: 0.88rem;
-            }
-            .document-extension {
-                font-size: 0.88rem;
-            }
+            .content-area { grid-template-columns: 1fr; }
+            .main-container { padding: 1rem 1.5rem 0.5rem; }
+            .preview-content { width: 95%; padding: 1.5rem 1rem; }
+            .document-input-group { max-width: 160px; }
+            .document-input-group input { width: 110px; font-size: 0.88rem; }
+            .document-extension { font-size: 0.88rem; }
         }
     </style>
 </head>
@@ -529,13 +514,10 @@
             </div>
             <div class="modal-body">
                 <h2>Markdown to PDF</h2>
-                <p>Наверное, один из самых старых проектов, который пришлось заново пересоздавать, так как старая версия была не идеальной.</p>
-                <p>Я уверен, что данный инструмент поможет многим школьникам и студентам, которые выполняют ДЗ через файлы вроде PDF или DOCX.</p>
+                <p>Поддержка: Markdown, LaTeX, и DOT-диаграммы (Graphviz).</p>
                 <blockquote>
-                    Если говорить по простому, то данный сайт переформатирует текст, написанный через Markdown, в документ типа PDF. В скором времени планируется добавить также DOCX, но это случится когда-нибудь позже.
+                    Используйте <code>```dot ... ```</code> — диаграммы отобразятся как изображения.
                 </blockquote>
-                <p>В частности, хочется сказать, что данный сайт не был полностью написан лично мной, а был переделан и улучшен с помощью нейросети Qwen3-Max.</p>
-                <p>Теперь поддерживается: <code>```dot ... ```</code> — для рендеринга диаграмм!</p>
             </div>
         </div>
     </div>
@@ -547,7 +529,7 @@
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Если вы хотите поддержать проект — поставьте звезду на GitHub! Это многое значит для меня и помогает развивать инструмент дальше.</p>
+                <p>Поставьте звезду на GitHub!</p>
                 <a href="https://github.com/Aurum2347" target="_blank" class="modal-link-btn">
                     <i class="fab fa-github"></i> Поставить ⭐
                 </a>
@@ -562,7 +544,7 @@
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Буду очень благодарен, если вы подпишетесь на мой Telegram-канал! Там публикуются полезные новости и обновления.</p>
+                <p>Подпишитесь на канал!</p>
                 <a href="https://t.me/aurums2347" target="_blank" class="modal-link-btn">
                     <i class="fab fa-telegram"></i> Перейти в канал
                 </a>
@@ -577,7 +559,7 @@
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Исходный код проекта доступен на GitHub. Issues, Pull Requests и звёзды приветствуются!</p>
+                <p>Исходный код на GitHub.</p>
                 <a href="https://github.com/Aurum2347" target="_blank" class="modal-link-btn">
                     <i class="fab fa-github"></i> Перейти на GitHub
                 </a>
@@ -628,31 +610,21 @@
                         <i class="fas fa-scissors"></i> Разрыв
                     </button>
                 </div>
-                <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш Markdown..."># Пример DOT-диаграммы
+                <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш Markdown..."># Пример DOT
 
 ```dot
 digraph G {
-    A -> B;
-    B -> C;
-    C -> { D; E; };
-    D -> F;
-    E -> F;
+    A -> B -> C;
+    C -> A;
 }
 ```
 
-## Формулы LaTeX
+## Формула
+$ E = mc^2 $
 
-Inline: $ E = mc^2 $
-
-Блочная:
-$$
-\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
-$$
-
-## Длинный код (не обрежется!)
-
+## Длинный код
 ```js
-const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "This string should wrap properly in both preview and PDF without being cut off";
+const veryLongVariableNameThatDoesNotBreakLayoutAnymore = "This will wrap properly without overflow!";
 ```
 
 ---
@@ -664,13 +636,11 @@ const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "
             <div class="panel">
                 <div class="preview-header">
                     <div class="font-size-control">
-                        <label>Размер текста:</label>
+                        <label>Размер:</label>
                         <select class="font-size-select" id="fontSizeSelect">
                             <option value="12">12px</option>
                             <option value="14" selected>14px</option>
                             <option value="16">16px</option>
-                            <option value="18">18px</option>
-                            <option value="20">20px</option>
                         </select>
                     </div>
                     <div style="display:flex;gap:0.75rem;align-items:center;">
@@ -702,11 +672,11 @@ const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+    <!-- ВАЖНО: только ОДИН скрипт Viz.js -->
     <script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/viz.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/full.render.js"></script>
 
     <script>
-        // Кастомный рендерер без DOT (рендерим DOT позже)
+        // Marked renderer (без DOT — рендерим отдельно)
         const renderer = new marked.Renderer();
         renderer.hr = () => '<div class="page-break"></div>';
 
@@ -726,16 +696,34 @@ const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "
         const fontSizeSelect = document.getElementById('fontSizeSelect');
 
         let dotRendering = false;
+        let vizInstance = null;
+        let vizPromise = null;
 
-        // 1. Рендер Markdown → HTML
+        // Создаём инстанс Viz один раз
+        function getVizInstance() {
+            if (!vizPromise) {
+                vizPromise = new Promise((resolve, reject) => {
+                    try {
+                        // Viz — это класс, нужно new
+                        vizInstance = new Viz({ workerURL: 'https://cdn.jsdelivr.net/npm/viz.js@2.1.2/viz.js' });
+                        resolve(vizInstance);
+                    } catch (e) {
+                        reject(e);
+                    }
+                });
+            }
+            return vizPromise;
+        }
+
+        // 1. Рендер Markdown
         function renderMarkdown() {
             const html = marked.parse(editor.value);
-            const cleanHtml = DOMPurify.sanitize(html, {
+            const clean = DOMPurify.sanitize(html, {
                 USE_PROFILES: { html: true },
                 ADD_TAGS: ['div'],
                 ADD_ATTR: ['class']
             });
-            preview.innerHTML = cleanHtml;
+            preview.innerHTML = clean;
             docNameLabel.textContent = documentNameInput.value + '.pdf';
             renderMathInElement(preview, {
                 delimiters: [
@@ -744,12 +732,11 @@ const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "
                     {left: "$", right: "$", display: false},
                     {left: "\\(", right: "\\)", display: false}
                 ],
-                throwOnError: false,
-                trust: false
+                throwOnError: false
             });
         }
 
-        // 2. Асинхронный рендер DOT после Markdown
+        // 2. Рендер DOT
         async function renderDotDiagrams(container = preview) {
             if (dotRendering) return;
             dotRendering = true;
@@ -760,37 +747,47 @@ const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "
                 return;
             }
 
+            let instance;
+            try {
+                instance = await getVizInstance();
+            } catch (e) {
+                console.error('Viz.js init failed:', e);
+                blocks.forEach(block => {
+                    block.textContent = '⚠️ Viz.js не загружен';
+                    block.style.color = 'red';
+                });
+                dotRendering = false;
+                return;
+            }
+
             for (const block of blocks) {
                 const pre = block.parentElement;
                 if (!pre || pre.hasAttribute('data-dot-rendered')) continue;
-
                 const code = block.textContent.trim();
                 if (!code) continue;
 
                 try {
-                    const svg = Viz(code, { format: 'svg', engine: 'dot' });
-
-                    // Безопасная кодировка SVG для data:image
-                    const svgData = encodeURIComponent(svg)
-                        .replace(/'/g, '%27')
-                        .replace(/"/g, '%22');
-
-                    const img = document.createElement('img');
-                    img.src = `data:image/svg+xml;charset=utf-8,${svgData}`;
-                    img.className = 'dot-diagram';
-                    img.alt = 'DOT Diagram';
-
+                    const svgElement = await instance.renderSVGElement(code);
                     const wrapper = document.createElement('div');
                     wrapper.className = 'dot-diagram-container';
-                    wrapper.appendChild(img);
 
+                    // Клонируем SVG и стилизуем
+                    const svgClone = svgElement.cloneNode(true);
+                    svgClone.classList.add('dot-diagram');
+                    svgClone.style.maxWidth = '100%';
+                    svgClone.style.height = 'auto';
+                    svgClone.style.border = '1px solid var(--code-border)';
+                    svgClone.style.borderRadius = '6px';
+                    svgClone.style.background = 'white';
+                    svgClone.style.padding = '0.5rem';
+
+                    wrapper.appendChild(svgClone);
                     pre.replaceWith(wrapper);
                     wrapper.setAttribute('data-dot-rendered', 'true');
                 } catch (e) {
-                    console.warn('DOT render failed:', e);
-                    block.style.backgroundColor = '#fff5f5';
-                    block.style.border = '1px solid #ffcccc';
-                    block.style.padding = '0.5rem';
+                    console.warn('DOT error:', e);
+                    block.textContent = '⚠️ Неверный DOT-код';
+                    block.style.color = '#d63031';
                     block.style.fontFamily = 'monospace';
                 }
             }
@@ -804,33 +801,21 @@ const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "
             await renderDotDiagrams();
         }
 
-        // Кнопки форматирования
+        // Форматирование
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const format = btn.getAttribute('data-format');
+                const format = btn.dataset.format;
                 const start = editor.selectionStart;
                 const end = editor.selectionEnd;
                 let newText = '';
-                const selected = editor.value.substring(start, end);
+                const sel = editor.value.substring(start, end);
                 switch(format) {
-                    case 'bold':
-                        newText = `**${selected}**`;
-                        break;
-                    case 'italic':
-                        newText = `*${selected}*`;
-                        break;
-                    case 'link':
-                        newText = `[${selected || 'текст'}](https://)`;
-                        break;
-                    case 'image':
-                        newText = `![${selected || 'альт'}](https://)`;
-                        break;
-                    case 'table':
-                        newText = '\n| Заголовок 1 | Заголовок 2 |\n|-------------|-------------|\n| Ячейка 1    | Ячейка 2    |\n';
-                        break;
-                    case 'pageBreak':
-                        newText = '\n\n---\n\n';
-                        break;
+                    case 'bold': newText = `**${sel}**`; break;
+                    case 'italic': newText = `*${sel}*`; break;
+                    case 'link': newText = `[${sel || 'текст'}](https://)`; break;
+                    case 'image': newText = `![${sel || 'альт'}](https://)`; break;
+                    case 'table': newText = '\n| A | B |\n|---|---|\n| 1 | 2 |\n'; break;
+                    case 'pageBreak': newText = '\n\n---\n\n'; break;
                 }
                 editor.value = editor.value.substring(0, start) + newText + editor.value.substring(end);
                 editor.focus();
@@ -853,13 +838,12 @@ const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "
             const clone = preview.cloneNode(true);
             clone.style.width = '210mm';
             clone.style.padding = '20mm';
-            clone.style.margin = '0';
-            clone.style.boxShadow = 'none';
-            clone.style.fontSize = '12pt';
-            clone.style.lineHeight = '1.5';
+            clone.style.margin = '0 auto';
             clone.style.backgroundColor = 'white';
             clone.style.color = 'black';
-            clone.style.overflow = 'visible';
+            clone.style.fontSize = '12pt';
+            clone.style.lineHeight = '1.5';
+            clone.style.display = 'block';
 
             const style = document.createElement('style');
             style.textContent = `
@@ -893,15 +877,8 @@ const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "
                     padding: 0 !important;
                     border: none !important;
                 }
-                table {
-                    table-layout: auto !important;
-                    width: 100% !important;
-                    word-break: break-word !important;
-                }
-                * {
-                    box-sizing: border-box !important;
-                    overflow-wrap: anywhere !important;
-                }
+                table { width: 100% !important; table-layout: auto !important; word-break: break-word !important; }
+                * { box-sizing: border-box !important; overflow-wrap: anywhere !important; }
             `;
             clone.appendChild(style);
 
@@ -913,18 +890,18 @@ const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "
                     scale: 2,
                     useCORS: true,
                     letterRendering: true,
-                    width: 595, // A4 ширина в px
+                    width: 595,
                     windowWidth: 800
                 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                jsPDF: { unit: 'mm', format: 'a4' },
                 pagebreak: { mode: ['css', 'legacy'] }
             };
 
             try {
                 await html2pdf().from(clone).set(opt).save();
-            } catch (err) {
-                console.error('PDF export failed:', err);
-                alert('Ошибка при создании PDF. Проверьте консоль.');
+            } catch (e) {
+                alert('Ошибка при создании PDF');
+                console.error(e);
             }
         });
 
@@ -944,7 +921,7 @@ const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "
             });
         });
 
-        // Инициализация
+        // Старт
         updatePreview();
     </script>
 </body>
