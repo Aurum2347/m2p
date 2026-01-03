@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown2PDF</title>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- KaTeX -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- DOMPurify -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
     <style>
         :root {
@@ -45,6 +48,7 @@
             flex-direction: column;
         }
 
+        /* Modals */
         .modal-backdrop {
             position: fixed;
             top: 0;
@@ -109,6 +113,44 @@
             color: var(--accent-color);
         }
 
+        .modal-body h2 {
+            margin: 1rem 0 0.8rem;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+
+        .modal-body p, .modal-body blockquote {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            font-size: 0.98rem;
+        }
+
+        .modal-body blockquote {
+            border-left: 3px solid var(--accent-color);
+            padding-left: 1rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .modal-link-btn {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            transition: background 0.2s;
+            border: 1px solid var(--accent-color);
+        }
+
+        .modal-link-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Header */
         .header {
             background-color: rgba(34, 40, 55, 0.85);
             backdrop-filter: blur(6px);
@@ -150,6 +192,7 @@
             border-color: var(--accent-color);
         }
 
+        /* Main Layout */
         .main-container {
             flex: 1;
             display: flex;
@@ -323,21 +366,27 @@
             max-width: 800px;
         }
 
-        /* Код */
-        .preview-content pre,
-        .preview-content code {
-            font-family: Consolas, monospace;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-            word-break: break-word;
+        /* Списки */
+        .preview-content ul,
+        .preview-content ol {
+            padding-left: 1.5rem;
+            margin: 0.8rem 0;
         }
 
+        .preview-content li {
+            margin-bottom: 0.4rem;
+        }
+
+        /* Код */
         .preview-content code {
             background: var(--code-bg);
             border: 1px solid var(--code-border);
             border-radius: 3px;
             padding: 0.15rem 0.3rem;
+            font-family: Consolas, monospace;
             font-size: 0.95em;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
         }
 
         .preview-content pre {
@@ -347,15 +396,21 @@
             padding: 1rem;
             margin: 1.2rem 0;
             overflow-x: auto;
+            font-family: Consolas, monospace;
+            font-size: 0.95em;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
         }
 
         .preview-content pre code {
             background: none;
             border: none;
             padding: 0;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
         }
 
-        /* DOT */
+        /* DOT diagrams */
         .dot-diagram-container {
             text-align: center;
             margin: 1.2rem 0;
@@ -370,6 +425,26 @@
             padding: 0.5rem;
         }
 
+        /* Таблицы */
+        .preview-content table {
+            width: 100%;
+            table-layout: auto;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 1.2rem 0;
+            font-size: inherit;
+            word-break: break-word;
+        }
+
+        .preview-content th,
+        .preview-content td {
+            border: 1px solid #999999;
+            padding: 0.6rem;
+            text-align: left;
+            word-wrap: break-word;
+            font-size: inherit;
+        }
+
         /* Разрыв страницы */
         .preview-content .page-break {
             page-break-after: always;
@@ -381,6 +456,7 @@
             width: 100%;
         }
 
+        /* Подвал */
         .footer-container {
             display: flex;
             justify-content: space-between;
@@ -394,6 +470,12 @@
             color: var(--accent-color);
         }
 
+        .footer-slogan {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        /* Скроллбары */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -412,13 +494,28 @@
             background: #4a5265;
         }
 
+        /* Адаптив */
         @media (max-width: 992px) {
-            .content-area { grid-template-columns: 1fr; }
-            .main-container { padding: 1rem 1.5rem 0.5rem; }
-            .preview-content { width: 95%; padding: 1.5rem 1rem; }
-            .document-input-group { max-width: 160px; }
-            .document-input-group input { width: 110px; font-size: 0.88rem; }
-            .document-extension { font-size: 0.88rem; }
+            .content-area {
+                grid-template-columns: 1fr;
+            }
+            .main-container {
+                padding: 1rem 1.5rem 0.5rem;
+            }
+            .preview-content {
+                width: 95%;
+                padding: 1.5rem 1rem;
+            }
+            .document-input-group {
+                max-width: 160px;
+            }
+            .document-input-group input {
+                width: 110px;
+                font-size: 0.88rem;
+            }
+            .document-extension {
+                font-size: 0.88rem;
+            }
         }
     </style>
 </head>
@@ -431,7 +528,59 @@
                 <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Поддержка DOT-диаграмм: используйте <code>```dot ... ```</code></p>
+                <h2>Markdown to PDF</h2>
+                <p>Наверное, один из самых старых проектов, который пришлось заново пересоздавать, так как старая версия была не идеальной.</p>
+                <p>Я уверен, что данный инструмент поможет многим школьникам и студентам, которые выполняют ДЗ через файлы вроде PDF или DOCX.</p>
+                <blockquote>
+                    Если говорить по простому, то данный сайт переформатирует текст, написанный через Markdown, в документ типа PDF. В скором времени планируется добавить также DOCX, но это случится когда-нибудь позже.
+                </blockquote>
+                <p>В частности, хочется сказать, что данный сайт не был полностью написан лично мной, а был переделан и улучшен с помощью нейросети Qwen3-Max.</p>
+                <p>Теперь поддерживается: <code>```dot ... ```</code> — для рендеринга диаграмм!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalThank">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Поблагодарить</div>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Если вы хотите поддержать проект — поставьте звезду на GitHub! Это многое значит для меня и помогает развивать инструмент дальше.</p>
+                <a href="https://github.com/Aurum2347" target="_blank" class="modal-link-btn">
+                    <i class="fab fa-github"></i> Поставить ⭐
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalTelegram">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Telegram</div>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Буду очень благодарен, если вы подпишетесь на мой Telegram-канал! Там публикуются полезные новости и обновления.</p>
+                <a href="https://t.me/aurums2347" target="_blank" class="modal-link-btn">
+                    <i class="fab fa-telegram"></i> Перейти в канал
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalGithub">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">GitHub</div>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Исходный код проекта доступен на GitHub. Issues, Pull Requests и звёзды приветствуются!</p>
+                <a href="https://github.com/Aurum2347" target="_blank" class="modal-link-btn">
+                    <i class="fab fa-github"></i> Перейти на GitHub
+                </a>
             </div>
         </div>
     </div>
@@ -443,45 +592,85 @@
             <button class="header-btn" data-modal="modalInfo">
                 <i class="fas fa-info-circle"></i> Информация
             </button>
+            <button class="header-btn" data-modal="modalThank">
+                <i class="fas fa-heart"></i> Поблагодарить
+            </button>
+            <button class="header-btn" data-modal="modalTelegram">
+                <i class="fab fa-telegram"></i> Telegram
+            </button>
+            <button class="header-btn" data-modal="modalGithub">
+                <i class="fab fa-github"></i> GitHub
+            </button>
         </div>
     </div>
 
-    <!-- Main -->
+    <!-- Main Content -->
     <div class="main-container">
         <div class="content-area">
             <div class="panel">
                 <div class="toolbar">
+                    <button class="tool-btn" title="Жирный" data-format="bold">
+                        <i class="fas fa-bold"></i> Жирный
+                    </button>
+                    <button class="tool-btn" title="Курсив" data-format="italic">
+                        <i class="fas fa-italic"></i> Курсив
+                    </button>
+                    <button class="tool-btn" title="Ссылка" data-format="link">
+                        <i class="fas fa-link"></i> Ссылка
+                    </button>
+                    <button class="tool-btn" title="Изображение" data-format="image">
+                        <i class="fas fa-image"></i> Изображение
+                    </button>
+                    <button class="tool-btn" title="Таблица" data-format="table">
+                        <i class="fas fa-table"></i> Таблица
+                    </button>
                     <button class="tool-btn" title="Разрыв" data-format="pageBreak">
                         <i class="fas fa-scissors"></i> Разрыв
                     </button>
                 </div>
-                <textarea class="editor" id="markdownEditor" placeholder="Markdown..."># Пример DOT
+                <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш Markdown..."># Пример DOT-диаграммы
 
 ```dot
 digraph G {
-    A -> B -> C -> A;
+    A -> B;
+    B -> C;
+    C -> { D; E; };
+    D -> F;
+    E -> F;
 }
 ```
 
-## Длинный код
+## Формулы LaTeX
+
+Inline: $ E = mc^2 $
+
+Блочная:
+$$
+\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+$$
+
+## Длинный код (не обрежется!)
 
 ```js
-const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayoutIfNotHandledProperly = true;
+const veryLongVariableNameThatMightCauseHorizontalOverflowBecauseItIsTooLong = "This string should wrap properly in both preview and PDF without being cut off";
 ```
 
 ---
 
-Разрыв
+Разрыв страницы.
 </textarea>
             </div>
+
             <div class="panel">
                 <div class="preview-header">
                     <div class="font-size-control">
-                        <label>Размер:</label>
+                        <label>Размер текста:</label>
                         <select class="font-size-select" id="fontSizeSelect">
                             <option value="12">12px</option>
                             <option value="14" selected>14px</option>
                             <option value="16">16px</option>
+                            <option value="18">18px</option>
+                            <option value="20">20px</option>
                         </select>
                     </div>
                     <div style="display:flex;gap:0.75rem;align-items:center;">
@@ -499,7 +688,10 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
                 </div>
                 <div class="footer-container">
                     <div>Документ: <strong id="docNameLabel">document.pdf</strong></div>
-                    <div><span class="footer-made-by">By Aurum2347</span></div>
+                    <div>
+                        <span class="footer-made-by">By Aurum2347</span><br>
+                        <span class="footer-slogan">Делаем для ЛЮДЕЙ, а не по ГОСТ-у.</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -514,6 +706,18 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
     <script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/full.render.js"></script>
 
     <script>
+        // Кастомный рендерер без DOT (рендерим DOT позже)
+        const renderer = new marked.Renderer();
+        renderer.hr = () => '<div class="page-break"></div>';
+
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            renderer: renderer,
+            mangle: false,
+            headerIds: false
+        });
+
         const editor = document.getElementById('markdownEditor');
         const preview = document.getElementById('previewContent');
         const downloadBtn = document.getElementById('downloadPdf');
@@ -521,19 +725,17 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
         const docNameLabel = document.getElementById('docNameLabel');
         const fontSizeSelect = document.getElementById('fontSizeSelect');
 
-        // Флаг, чтобы не обрабатывать DOT при каждом input
         let dotRendering = false;
-        let dotRenderQueue = [];
 
         // 1. Рендер Markdown → HTML
         function renderMarkdown() {
             const html = marked.parse(editor.value);
-            const clean = DOMPurify.sanitize(html, {
+            const cleanHtml = DOMPurify.sanitize(html, {
                 USE_PROFILES: { html: true },
                 ADD_TAGS: ['div'],
                 ADD_ATTR: ['class']
             });
-            preview.innerHTML = clean;
+            preview.innerHTML = cleanHtml;
             docNameLabel.textContent = documentNameInput.value + '.pdf';
             renderMathInElement(preview, {
                 delimiters: [
@@ -542,11 +744,12 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
                     {left: "$", right: "$", display: false},
                     {left: "\\(", right: "\\)", display: false}
                 ],
-                throwOnError: false
+                throwOnError: false,
+                trust: false
             });
         }
 
-        // 2. Найти все code.language-dot и заменить их на диаграммы
+        // 2. Асинхронный рендер DOT после Markdown
         async function renderDotDiagrams(container = preview) {
             if (dotRendering) return;
             dotRendering = true;
@@ -559,23 +762,36 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
 
             for (const block of blocks) {
                 const pre = block.parentElement;
-                const code = block.textContent;
+                if (!pre || pre.hasAttribute('data-dot-rendered')) continue;
 
-                if (pre.hasAttribute('data-dot-rendered')) continue;
+                const code = block.textContent.trim();
+                if (!code) continue;
 
                 try {
                     const svg = Viz(code, { format: 'svg', engine: 'dot' });
+
+                    // Безопасная кодировка SVG для data:image
+                    const svgData = encodeURIComponent(svg)
+                        .replace(/'/g, '%27')
+                        .replace(/"/g, '%22');
+
                     const img = document.createElement('img');
-                    img.src = 'data:image/svg+xml;base64,' + btoa(svg);
+                    img.src = `data:image/svg+xml;charset=utf-8,${svgData}`;
                     img.className = 'dot-diagram';
+                    img.alt = 'DOT Diagram';
 
                     const wrapper = document.createElement('div');
                     wrapper.className = 'dot-diagram-container';
                     wrapper.appendChild(img);
 
                     pre.replaceWith(wrapper);
+                    wrapper.setAttribute('data-dot-rendered', 'true');
                 } catch (e) {
-                    console.warn('Failed to render DOT:', e);
+                    console.warn('DOT render failed:', e);
+                    block.style.backgroundColor = '#fff5f5';
+                    block.style.border = '1px solid #ffcccc';
+                    block.style.padding = '0.5rem';
+                    block.style.fontFamily = 'monospace';
                 }
             }
 
@@ -588,16 +804,33 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
             await renderDotDiagrams();
         }
 
-        // Кнопки
+        // Кнопки форматирования
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const format = btn.dataset.format;
+                const format = btn.getAttribute('data-format');
                 const start = editor.selectionStart;
                 const end = editor.selectionEnd;
                 let newText = '';
-                const sel = editor.value.substring(start, end);
+                const selected = editor.value.substring(start, end);
                 switch(format) {
-                    case 'pageBreak': newText = '\n\n---\n\n'; break;
+                    case 'bold':
+                        newText = `**${selected}**`;
+                        break;
+                    case 'italic':
+                        newText = `*${selected}*`;
+                        break;
+                    case 'link':
+                        newText = `[${selected || 'текст'}](https://)`;
+                        break;
+                    case 'image':
+                        newText = `![${selected || 'альт'}](https://)`;
+                        break;
+                    case 'table':
+                        newText = '\n| Заголовок 1 | Заголовок 2 |\n|-------------|-------------|\n| Ячейка 1    | Ячейка 2    |\n';
+                        break;
+                    case 'pageBreak':
+                        newText = '\n\n---\n\n';
+                        break;
                 }
                 editor.value = editor.value.substring(0, start) + newText + editor.value.substring(end);
                 editor.focus();
@@ -605,7 +838,6 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
             });
         });
 
-        // Слушатели
         editor.addEventListener('input', updatePreview);
         documentNameInput.addEventListener('input', () => {
             docNameLabel.textContent = documentNameInput.value + '.pdf';
@@ -614,18 +846,20 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
             preview.style.fontSize = fontSizeSelect.value + 'px';
         });
 
-        // Экспорт
+        // Экспорт в PDF
         downloadBtn.addEventListener('click', async () => {
-            await updatePreview(); // Убедиться, что всё отрендерено
+            await updatePreview();
 
             const clone = preview.cloneNode(true);
             clone.style.width = '210mm';
             clone.style.padding = '20mm';
             clone.style.margin = '0';
-            clone.style.backgroundColor = 'white';
-            clone.style.color = 'black';
+            clone.style.boxShadow = 'none';
             clone.style.fontSize = '12pt';
             clone.style.lineHeight = '1.5';
+            clone.style.backgroundColor = 'white';
+            clone.style.color = 'black';
+            clone.style.overflow = 'visible';
 
             const style = document.createElement('style');
             style.textContent = `
@@ -643,10 +877,13 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
                     white-space: pre-wrap !important;
                     overflow-wrap: anywhere !important;
                     word-break: break-word !important;
+                    background: #f8f9fa !important;
+                    border: 1px solid #e9ecef !important;
                 }
                 .dot-diagram {
                     max-width: 100% !important;
                     height: auto !important;
+                    display: block !important;
                 }
                 .page-break {
                     page-break-after: always;
@@ -656,8 +893,15 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
                     padding: 0 !important;
                     border: none !important;
                 }
-                table { width: 100% !important; table-layout: auto !important; word-break: break-word !important; }
-                * { box-sizing: border-box !important; }
+                table {
+                    table-layout: auto !important;
+                    width: 100% !important;
+                    word-break: break-word !important;
+                }
+                * {
+                    box-sizing: border-box !important;
+                    overflow-wrap: anywhere !important;
+                }
             `;
             clone.appendChild(style);
 
@@ -669,22 +913,22 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
                     scale: 2,
                     useCORS: true,
                     letterRendering: true,
-                    width: 595,
+                    width: 595, // A4 ширина в px
                     windowWidth: 800
                 },
-                jsPDF: { unit: 'mm', format: 'a4' },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                 pagebreak: { mode: ['css', 'legacy'] }
             };
 
             try {
                 await html2pdf().from(clone).set(opt).save();
-            } catch (e) {
-                alert('Ошибка экспорта PDF');
-                console.error(e);
+            } catch (err) {
+                console.error('PDF export failed:', err);
+                alert('Ошибка при создании PDF. Проверьте консоль.');
             }
         });
 
-        // Модалки
+        // Модальные окна
         document.querySelectorAll('[data-modal]').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.getElementById(btn.dataset.modal).classList.add('active');
@@ -700,7 +944,7 @@ const veryLongLineThatShouldNotOverflowBecauseItIsWayTooLongAndMightBreakTheLayo
             });
         });
 
-        // Старт
+        // Инициализация
         updatePreview();
     </script>
 </body>
