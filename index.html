@@ -7,7 +7,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- KaTeX -->
-    <link rel="stylesheet" href="css/katex.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- DOMPurify (для безопасности) -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
     <style>
         :root {
             --bg-primary: #1a1f2b;
@@ -302,7 +304,6 @@
             border: 1px solid var(--border-color);
             border-radius: 4px;
             max-width: 200px;
-            margin-left: -8px;
         }
 
         .document-input-group input {
@@ -363,7 +364,6 @@
             width: 75%;
             min-width: 300px;
             max-width: 800px;
-            page-break-inside: avoid;
             overflow: visible !important;
         }
 
@@ -409,7 +409,7 @@
         .preview-content table {
             width: 100%;
             table-layout: fixed;
-            border-collapse: separate !important;
+            border-collapse: separate;
             border-spacing: 0;
             margin: 1.2rem 0;
             font-size: inherit;
@@ -417,14 +417,14 @@
 
         .preview-content th,
         .preview-content td {
-            border: 1px solid #999999 !important;
+            border: 1px solid #999999;
             padding: 0.6rem;
             text-align: left;
             word-wrap: break-word;
             font-size: inherit;
         }
 
-        /* Разрыв страницы */
+        /* Разрыв страницы — визуальный в preview */
         .preview-content .page-break {
             page-break-after: always;
             break-after: page;
@@ -432,6 +432,7 @@
             margin: 2rem 0;
             border: none;
             border-top: 1px dashed #aaa;
+            width: 100%;
         }
 
         /* Подвал */
@@ -486,7 +487,6 @@
             }
             .document-input-group {
                 max-width: 160px;
-                margin-left: 0;
             }
             .document-input-group input {
                 width: 110px;
@@ -644,7 +644,8 @@ function hello() {
 
 ---
 
-Разрыв страницы.</textarea>
+Разрыв страницы.
+</textarea>
             </div>
 
             <div class="panel">
@@ -683,14 +684,24 @@ function hello() {
         </div>
     </div>
 
-    <!-- Локальные скрипты -->
-    <script src="js/marked.min.js"></script>
-    <script src="js/katex.min.js"></script>
-    <script src="js/auto-render.min.js"></script>
-    <script src="js/html2pdf.bundle.min.js"></script>
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/lib/marked.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 
     <script>
-        marked.setOptions({ breaks: true, gfm: true });
+        // 🔑 Кастомный рендерер для поддержки page-break
+        const renderer = new marked.Renderer();
+        renderer.hr = () => '<div class="page-break"></div>';
+
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            renderer: renderer,
+            mangle: false,
+            headerIds: false
+        });
 
         const editor = document.getElementById('markdownEditor');
         const preview = document.getElementById('previewContent');
@@ -700,11 +711,14 @@ function hello() {
         const fontSizeSelect = document.getElementById('fontSizeSelect');
 
         function updatePreview() {
-            const html = marked.parse(editor.value);
-            preview.innerHTML = html;
+            const rawHtml = marked.parse(editor.value);
+            const cleanHtml = DOMPurify.sanitize(rawHtml, {
+                ADD_TAGS: ['div'],
+                ADD_ATTR: ['class']
+            });
+            preview.innerHTML = cleanHtml;
             docNameLabel.textContent = documentNameInput.value + '.pdf';
-            
-            // 🔑 Поддержка ВСЕХ LaTeX-окружений (включая aligned)
+
             renderMathInElement(preview, {
                 delimiters: [
                     {left: "$$", right: "$$", display: true},
@@ -726,12 +740,24 @@ function hello() {
                 let newText = '';
                 const selected = editor.value.substring(start, end);
                 switch(format) {
-                    case 'bold': newText = `**${selected}**`; break;
-                    case 'italic': newText = `*${selected}*`; break;
-                    case 'link': newText = `[${selected || 'текст'}](https://)`;
-                    case 'image': newText = `![${selected || 'альт'}](https://)`;
-                    case 'table': newText = '\n| Заголовок 1 | Заголовок 2 |\n|-------------|-------------|\n| Ячейка 1    | Ячейка 2    |\n';
-                    case 'pageBreak': newText = '\n\n---\n\n';
+                    case 'bold':
+                        newText = `**${selected}**`;
+                        break;
+                    case 'italic':
+                        newText = `*${selected}*`;
+                        break;
+                    case 'link':
+                        newText = `[${selected || 'текст'}](https://)`;
+                        break;
+                    case 'image':
+                        newText = `![${selected || 'альт'}](https://)`;
+                        break;
+                    case 'table':
+                        newText = '\n| Заголовок 1 | Заголовок 2 |\n|-------------|-------------|\n| Ячейка 1    | Ячейка 2    |\n';
+                        break;
+                    case 'pageBreak':
+                        newText = '\n\n---\n\n';
+                        break;
                 }
                 editor.value = editor.value.substring(0, start) + newText + editor.value.substring(end);
                 editor.focus();
@@ -747,9 +773,8 @@ function hello() {
             preview.style.fontSize = fontSizeSelect.value + 'px';
         });
 
-        // 🔑 Экспорт в PDF — защищён от обрезки
+        // 🔑 Экспорт в PDF — умное разбиение по страницам
         downloadBtn.addEventListener('click', () => {
-            // Клонируем контент, чтобы изолировать от стилей
             const clone = preview.cloneNode(true);
             clone.style.width = '210mm';
             clone.style.padding = '20mm 15mm';
@@ -758,12 +783,21 @@ function hello() {
             clone.style.fontSize = '12pt';
             clone.style.lineHeight = '1.5';
             clone.style.overflow = 'visible';
+            clone.style.backgroundColor = 'white';
+            clone.style.color = 'black';
 
-            // Применяем стили для формул
             const style = document.createElement('style');
             style.textContent = `
                 .katex { font-size: 1.1em !important; }
-                * { padding-bottom: 1px !important; }
+                .page-break {
+                    page-break-after: always;
+                    break-after: page;
+                    height: 0 !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    border: none !important;
+                }
+                * { word-wrap: break-word; overflow-wrap: break-word; }
             `;
             clone.appendChild(style);
 
@@ -771,21 +805,21 @@ function hello() {
                 margin: 0,
                 filename: `${documentNameInput.value || 'document'}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 1.3,
+                html2canvas: {
+                    scale: 2,
                     useCORS: true,
                     scrollY: -window.scrollY,
                     letterRendering: true,
-                    windowHeight: 10000 // предотвращает обрезку
+                    width: 800
                 },
-                jsPDF: { 
-                    unit: 'mm', 
-                    format: 'a4', 
-                    orientation: 'portrait' 
-                }
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['css', 'legacy'] } // 🔑 главный параметр
             };
 
-            html2pdf().from(clone).set(opt).save();
+            html2pdf().from(clone).set(opt).save().catch(err => {
+                console.error('Ошибка при генерации PDF:', err);
+                alert('Произошла ошибка при создании PDF. Проверьте консоль браузера.');
+            });
         });
 
         // Модальные окна
