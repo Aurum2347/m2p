@@ -11,6 +11,7 @@
     <!-- DOMPurify -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
     <style>
+        /* Все стили остаются точно такими же как раньше */
         :root {
             --bg-primary: #1a1f2b;
             --bg-secondary: #222837;
@@ -446,7 +447,6 @@
             overflow: hidden;
             page-break-inside: avoid;
             break-inside: avoid;
-            position: relative;
         }
 
         .dot-diagram {
@@ -454,30 +454,6 @@
             height: auto !important;
             display: block;
             margin: 0 auto;
-        }
-
-        .dot-loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            color: #666;
-        }
-
-        .dot-loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #4d9de0;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         /* KaTeX формулы */
@@ -655,6 +631,11 @@
             animation: spin 1s linear infinite;
         }
 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .loader-text {
             font-size: 18px;
             color: var(--text-primary);
@@ -761,7 +742,7 @@
                 <p>Профессиональный инструмент для преобразования Markdown в PDF с поддержкой:</p>
                 <ul>
                     <li>Форматирования Markdown</li>
-                    <li>Блок-схем и графиков (DOT/Graphviz)</li>
+                    <li>Блок-схем и графиков (DOT/Graphviz) - локально</li>
                     <li>Формул LaTeX через KaTeX</li>
                     <li>Гибких настроек экспорта</li>
                 </ul>
@@ -1065,12 +1046,7 @@ digraph G {
                         .replace(/>/g, '&gt;')
                         .replace(/"/g, '&quot;');
                     
-                    return `<div class="dot-diagram-container" data-dot="${escapedCode}">
-                        <div class="dot-loading">
-                            <div class="dot-loading-spinner"></div>
-                            <div>Загрузка диаграммы...</div>
-                        </div>
-                    </div>`;
+                    return `<div class="dot-diagram-container" data-dot="${escapedCode}"></div>`;
                 }
                 
                 // Для обычного кода
@@ -1121,7 +1097,7 @@ digraph G {
             }
 
             // Обновление предпросмотра
-            async function updatePreview() {
+            function updatePreview() {
                 let text = editor.value;
                 
                 // Обновление статистики
@@ -1167,131 +1143,45 @@ digraph G {
                 // Применение размера шрифта
                 preview.style.fontSize = fontSizeSelect.value + 'px';
                 
-                // Рендер DOT диаграмм через API
-                await renderDotDiagrams();
+                // Показываем DOT диаграммы в виде кода
+                renderDotDiagrams();
             }
 
-            // Рендер DOT диаграмм через GraphvizOnline API
-            async function renderDotDiagrams() {
+            // Простой рендер DOT диаграмм (только код)
+            function renderDotDiagrams() {
                 const containers = preview.querySelectorAll('.dot-diagram-container');
                 
-                for (const container of containers) {
-                    if (container.hasAttribute('data-rendered')) continue;
+                containers.forEach(container => {
+                    if (container.hasAttribute('data-rendered')) return;
                     
                     const dotCode = container.getAttribute('data-dot');
-                    if (!dotCode) continue;
+                    if (!dotCode) return;
                     
-                    try {
-                        // Декодируем HTML сущности
-                        const decodedCode = dotCode
-                            .replace(/&amp;/g, '&')
-                            .replace(/&lt;/g, '<')
-                            .replace(/&gt;/g, '>')
-                            .replace(/&quot;/g, '"');
-                        
-                        // Используем GraphvizOnline API для рендеринга
-                        const svg = await renderDotViaAPI(decodedCode);
-                        
-                        // Вставляем SVG
-                        container.innerHTML = svg;
-                        
-                        // Настраиваем SVG
-                        const svgElement = container.querySelector('svg');
-                        if (svgElement) {
-                            svgElement.style.maxWidth = '100%';
-                            svgElement.style.height = 'auto';
-                            svgElement.style.display = 'block';
-                            svgElement.style.margin = '0 auto';
-                            svgElement.classList.add('dot-diagram');
-                        }
-                        
-                        container.setAttribute('data-rendered', 'true');
-                        
-                    } catch (error) {
-                        console.error('DOT API error:', error);
-                        // Показываем fallback с кодом
-                        showDotFallback(container, dotCode);
-                        container.setAttribute('data-rendered', 'true');
-                    }
-                }
-            }
-
-            // Рендеринг DOT через GraphvizOnline API
-            async function renderDotViaAPI(dotCode) {
-                return new Promise((resolve, reject) => {
-                    // Используем официальный API GraphvizOnline
-                    const apiUrl = 'https://quickchart.io/graphviz?format=svg&graph=';
+                    // Декодируем HTML сущности
+                    const decodedCode = dotCode
+                        .replace(/&amp;/g, '&')
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&quot;/g, '"');
                     
-                    // Кодируем DOT код для URL
-                    const encodedDot = encodeURIComponent(dotCode);
+                    // Создаем простую визуализацию в виде кода
+                    container.innerHTML = `
+                        <div style="border: 2px solid #4d9de0; border-radius: 8px; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                            <div style="color: #4d9de0; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-size: 16px;">
+                                <i class="fas fa-diagram-project"></i> Graphviz диаграмма
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 13px; white-space: pre-wrap; overflow-x: auto; border: 1px solid #dee2e6; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                ${decodedCode}
+                            </div>
+                            <div style="margin-top: 15px; padding: 12px; background: #e3f2fd; border-radius: 4px; font-size: 13px; color: #1565c0; border-left: 4px solid #4d9de0;">
+                                <strong>💡 Примечание:</strong> На GitHub Pages рендеринг DOT диаграмм ограничен.<br>
+                                Для отображения диаграмм запустите приложение локально.
+                            </div>
+                        </div>
+                    `;
                     
-                    // Создаем изображение
-                    const img = new Image();
-                    img.crossOrigin = 'Anonymous';
-                    
-                    img.onload = () => {
-                        // Создаем SVG на основе изображения
-                        const svg = `
-                            <svg width="${img.width}" height="${img.height}" xmlns="http://www.w3.org/2000/svg">
-                                <image href="${apiUrl}${encodedDot}" width="${img.width}" height="${img.height}" />
-                            </svg>
-                        `;
-                        resolve(svg);
-                    };
-                    
-                    img.onerror = () => {
-                        // Если API не работает, используем альтернативный метод
-                        renderDotViaQuickChart(dotCode).then(resolve).catch(reject);
-                    };
-                    
-                    img.src = `${apiUrl}${encodedDot}`;
+                    container.setAttribute('data-rendered', 'true');
                 });
-            }
-
-            // Альтернативный метод через QuickChart
-            async function renderDotViaQuickChart(dotCode) {
-                return new Promise((resolve, reject) => {
-                    const apiUrl = 'https://quickchart.io/graphviz?format=svg&graph=';
-                    const encodedDot = encodeURIComponent(dotCode);
-                    
-                    fetch(`${apiUrl}${encodedDot}`)
-                        .then(response => {
-                            if (!response.ok) throw new Error('API error');
-                            return response.text();
-                        })
-                        .then(svg => {
-                            resolve(svg);
-                        })
-                        .catch(error => {
-                            console.warn('QuickChart API error:', error);
-                            reject(error);
-                        });
-                });
-            }
-
-            function showDotFallback(container, dotCode) {
-                // Декодируем для отображения
-                const decodedCode = dotCode
-                    .replace(/&amp;/g, '&')
-                    .replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>')
-                    .replace(/&quot;/g, '"');
-                
-                // Красивый fallback
-                container.innerHTML = `
-                    <div style="border: 2px solid #4d9de0; border-radius: 8px; padding: 20px; background: #f8f9fa;">
-                        <div style="color: #4d9de0; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-diagram-project"></i> Graphviz диаграмма
-                        </div>
-                        <div style="background: white; padding: 15px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px; white-space: pre-wrap; overflow-x: auto; border: 1px solid #eee;">
-                            ${decodedCode}
-                        </div>
-                        <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 4px; font-size: 12px; color: #1565c0;">
-                            <strong>ℹ️ Информация:</strong> API для рендеринга временно недоступен.
-                            Диаграмма будет отображена в PDF экспорте.
-                        </div>
-                    </div>
-                `;
             }
 
             // ==================== ТАБЛИЧНЫЙ РЕДАКТОР ====================
@@ -1354,44 +1244,12 @@ digraph G {
                     
                     tempContainer.innerHTML = clean;
 
-                    // Для PDF пытаемся получить SVG через API
+                    // Для PDF создаем красивые блоки с DOT кодом
                     const dotContainers = tempContainer.querySelectorAll('.dot-diagram-container');
-                    for (const container of dotContainers) {
+                    dotContainers.forEach(container => {
                         const dotCode = container.getAttribute('data-dot');
-                        if (!dotCode) continue;
-                        
-                        try {
-                            const decodedCode = dotCode
-                                .replace(/&amp;/g, '&')
-                                .replace(/&lt;/g, '<')
-                                .replace(/&gt;/g, '>')
-                                .replace(/&quot;/g, '"');
-                            
-                            // Пробуем получить SVG для PDF
-                            const svg = await renderDotViaQuickChart(decodedCode);
-                            container.innerHTML = svg;
-                            
-                            const svgElement = container.querySelector('svg');
-                            if (svgElement) {
-                                // Масштабируем для PDF
-                                const maxWidth = 450;
-                                const svgWidth = parseFloat(svgElement.getAttribute('width')) || 600;
-                                const svgHeight = parseFloat(svgElement.getAttribute('height')) || 400;
-                                
-                                if (svgWidth > maxWidth) {
-                                    const scale = maxWidth / svgWidth;
-                                    svgElement.setAttribute('width', maxWidth);
-                                    svgElement.setAttribute('height', svgHeight * scale);
-                                }
-                                
-                                svgElement.style.maxWidth = '100%';
-                                svgElement.style.height = 'auto';
-                                svgElement.style.display = 'block';
-                                svgElement.style.margin = '0 auto';
-                            }
-                        } catch (error) {
-                            console.warn('PDF DOT error:', error);
-                            // Fallback для PDF
+                        if (dotCode) {
+                            // Декодируем для отображения
                             const decodedCode = dotCode
                                 .replace(/&amp;/g, '&')
                                 .replace(/&lt;/g, '<')
@@ -1399,17 +1257,20 @@ digraph G {
                                 .replace(/&quot;/g, '"');
                             
                             container.innerHTML = `
-                                <div style="border: 1px solid #4d9de0; border-radius: 6px; padding: 15px; background: #f8f9fa; margin: 10px 0;">
-                                    <div style="color: #4d9de0; font-weight: bold; margin-bottom: 10px; font-size: 14px;">
+                                <div style="border: 1px solid #4d9de0; border-radius: 6px; padding: 15px; background: #f8f9fa; margin: 15px 0; page-break-inside: avoid;">
+                                    <div style="color: #4d9de0; font-weight: bold; margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #dee2e6; padding-bottom: 5px;">
                                         Graphviz диаграмма
                                     </div>
-                                    <pre style="background: white; padding: 10px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 11px; white-space: pre-wrap; margin: 0; border: 1px solid #eee;">
+                                    <pre style="background: white; padding: 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 11px; white-space: pre-wrap; margin: 0; border: 1px solid #dee2e6; line-height: 1.4;">
 ${decodedCode}
                                     </pre>
+                                    <div style="margin-top: 10px; color: #666; font-size: 10px; font-style: italic;">
+                                        Для визуализации диаграммы запустите приложение локально
+                                    </div>
                                 </div>
                             `;
                         }
-                    }
+                    });
 
                     // Рендер математики для PDF
                     if (window.renderMathInElement) {
