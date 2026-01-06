@@ -11,7 +11,6 @@
     <!-- DOMPurify -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
     <style>
-        /* Все стили остаются точно такими же как в предыдущем коде */
         :root {
             --bg-primary: #1a1f2b;
             --bg-secondary: #222837;
@@ -447,6 +446,7 @@
             overflow: hidden;
             page-break-inside: avoid;
             break-inside: avoid;
+            position: relative;
         }
 
         .dot-diagram {
@@ -454,6 +454,30 @@
             height: auto !important;
             display: block;
             margin: 0 auto;
+        }
+
+        .dot-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .dot-loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4d9de0;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* KaTeX формулы */
@@ -629,11 +653,6 @@
             border: 3px solid var(--border-color);
             border-top-color: var(--accent-color);
             animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         .loader-text {
@@ -1007,91 +1026,6 @@ digraph G {
             });
         };
 
-        // Альтернативный подход для Viz.js на GitHub Pages
-        const loadVizForGitHubPages = () => {
-            return new Promise((resolve) => {
-                console.log('Загружаем Viz.js для GitHub Pages...');
-                
-                // Используем версию Viz.js без Web Worker для GitHub Pages
-                const script = document.createElement('script');
-                script.src = 'https://unpkg.com/viz-standalone@2.0.0/viz-standalone.min.js';
-                script.onload = () => {
-                    console.log('Viz.js (standalone) загружен');
-                    
-                    // Создаем простую обертку для совместимости
-                    if (window.Viz) {
-                        // Если уже есть Viz от standalone версии
-                        resolve();
-                    } else {
-                        // Создаем функцию-заглушку для рендеринга
-                        window.Viz = function(dotCode, options = {}) {
-                            try {
-                                // Используем простой рендеринг без worker
-                                const engine = options.engine || 'dot';
-                                const format = options.format || 'svg';
-                                
-                                if (format !== 'svg') {
-                                    throw new Error('Только SVG формат поддерживается');
-                                }
-                                
-                                // Возвращаем заглушку
-                                return `<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg">
-                                    <rect width="100%" height="100%" fill="#f0f8ff"/>
-                                    <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="14" fill="#666">
-                                        DOT диаграмма
-                                    </text>
-                                    <text x="50%" y="70%" text-anchor="middle" font-family="Arial" font-size="12" fill="#999">
-                                        (рендеринг на GitHub Pages недоступен)
-                                    </text>
-                                </svg>`;
-                            } catch (error) {
-                                console.error('Viz error:', error);
-                                return `<div style="color: red;">Ошибка DOT: ${error.message}</div>`;
-                            }
-                        };
-                        resolve();
-                    }
-                };
-                
-                script.onerror = () => {
-                    console.warn('Не удалось загрузить Viz.js, используем fallback');
-                    
-                    // Fallback функция для GitHub Pages
-                    window.Viz = function(dotCode, options = {}) {
-                        try {
-                            // Простая заглушка для GitHub Pages
-                            const escapedCode = dotCode
-                                .replace(/&/g, '&amp;')
-                                .replace(/</g, '&lt;')
-                                .replace(/>/g, '&gt;')
-                                .replace(/"/g, '&quot;');
-                            
-                            return `
-                                <div style="border: 2px solid #4d9de0; border-radius: 8px; padding: 20px; background: #f8f9fa; margin: 10px 0;">
-                                    <div style="color: #4d9de0; font-weight: bold; margin-bottom: 10px;">
-                                        <i class="fas fa-diagram-project"></i> Graphviz диаграмма
-                                    </div>
-                                    <div style="background: white; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 12px; white-space: pre-wrap; overflow-x: auto;">
-                                        ${escapedCode}
-                                    </div>
-                                    <div style="margin-top: 10px; color: #666; font-size: 11px;">
-                                        <strong>Примечание:</strong> Рендеринг DOT диаграмм на GitHub Pages ограничен.
-                                        Для полного функционала запустите локально.
-                                    </div>
-                                </div>
-                            `;
-                        } catch (error) {
-                            return `<div style="color: red; padding: 10px;">Ошибка DOT: ${error.message}</div>`;
-                        }
-                    };
-                    
-                    resolve();
-                };
-                
-                document.head.appendChild(script);
-            });
-        };
-
         // Основной код приложения
         const initApp = async () => {
             console.log('Начинаем инициализацию приложения...');
@@ -1131,7 +1065,12 @@ digraph G {
                         .replace(/>/g, '&gt;')
                         .replace(/"/g, '&quot;');
                     
-                    return `<div class="dot-diagram-container" data-dot="${escapedCode}"></div>`;
+                    return `<div class="dot-diagram-container" data-dot="${escapedCode}">
+                        <div class="dot-loading">
+                            <div class="dot-loading-spinner"></div>
+                            <div>Загрузка диаграммы...</div>
+                        </div>
+                    </div>`;
                 }
                 
                 // Для обычного кода
@@ -1182,7 +1121,7 @@ digraph G {
             }
 
             // Обновление предпросмотра
-            function updatePreview() {
+            async function updatePreview() {
                 let text = editor.value;
                 
                 // Обновление статистики
@@ -1228,19 +1167,19 @@ digraph G {
                 // Применение размера шрифта
                 preview.style.fontSize = fontSizeSelect.value + 'px';
                 
-                // Рендер DOT диаграмм (упрощенный для GitHub Pages)
-                renderDotDiagrams();
+                // Рендер DOT диаграмм через API
+                await renderDotDiagrams();
             }
 
-            // Рендер DOT диаграмм для GitHub Pages
-            function renderDotDiagrams() {
+            // Рендер DOT диаграмм через GraphvizOnline API
+            async function renderDotDiagrams() {
                 const containers = preview.querySelectorAll('.dot-diagram-container');
                 
-                containers.forEach(container => {
-                    if (container.hasAttribute('data-rendered')) return;
+                for (const container of containers) {
+                    if (container.hasAttribute('data-rendered')) continue;
                     
                     const dotCode = container.getAttribute('data-dot');
-                    if (!dotCode) return;
+                    if (!dotCode) continue;
                     
                     try {
                         // Декодируем HTML сущности
@@ -1250,66 +1189,106 @@ digraph G {
                             .replace(/&gt;/g, '>')
                             .replace(/&quot;/g, '"');
                         
-                        // Пробуем рендерить через Viz если доступен
-                        if (typeof window.Viz === 'function') {
-                            try {
-                                const result = window.Viz(decodedCode, { 
-                                    format: 'svg', 
-                                    engine: 'dot' 
-                                });
-                                
-                                // Проверяем, что это SVG
-                                if (result.includes('<svg')) {
-                                    container.innerHTML = result;
-                                    
-                                    // Настраиваем SVG
-                                    const svg = container.querySelector('svg');
-                                    if (svg) {
-                                        svg.style.maxWidth = '100%';
-                                        svg.style.height = 'auto';
-                                        svg.style.display = 'block';
-                                        svg.style.margin = '0 auto';
-                                        svg.classList.add('dot-diagram');
-                                    }
-                                } else {
-                                    // Если не SVG, вставляем как есть
-                                    container.innerHTML = result;
-                                }
-                            } catch (vizError) {
-                                console.warn('Viz.js ошибка:', vizError);
-                                showDotFallback(container, decodedCode);
-                            }
-                        } else {
-                            showDotFallback(container, decodedCode);
+                        // Используем GraphvizOnline API для рендеринга
+                        const svg = await renderDotViaAPI(decodedCode);
+                        
+                        // Вставляем SVG
+                        container.innerHTML = svg;
+                        
+                        // Настраиваем SVG
+                        const svgElement = container.querySelector('svg');
+                        if (svgElement) {
+                            svgElement.style.maxWidth = '100%';
+                            svgElement.style.height = 'auto';
+                            svgElement.style.display = 'block';
+                            svgElement.style.margin = '0 auto';
+                            svgElement.classList.add('dot-diagram');
                         }
                         
                         container.setAttribute('data-rendered', 'true');
                         
                     } catch (error) {
-                        console.error('DOT error:', error);
-                        container.innerHTML = `
-                            <div style="color: #dc3545; padding: 12px; background: #f8d7da; border-radius: 6px;">
-                                <strong>Ошибка DOT:</strong> ${error.message}
-                            </div>
-                        `;
+                        console.error('DOT API error:', error);
+                        // Показываем fallback с кодом
+                        showDotFallback(container, dotCode);
                         container.setAttribute('data-rendered', 'true');
                     }
+                }
+            }
+
+            // Рендеринг DOT через GraphvizOnline API
+            async function renderDotViaAPI(dotCode) {
+                return new Promise((resolve, reject) => {
+                    // Используем официальный API GraphvizOnline
+                    const apiUrl = 'https://quickchart.io/graphviz?format=svg&graph=';
+                    
+                    // Кодируем DOT код для URL
+                    const encodedDot = encodeURIComponent(dotCode);
+                    
+                    // Создаем изображение
+                    const img = new Image();
+                    img.crossOrigin = 'Anonymous';
+                    
+                    img.onload = () => {
+                        // Создаем SVG на основе изображения
+                        const svg = `
+                            <svg width="${img.width}" height="${img.height}" xmlns="http://www.w3.org/2000/svg">
+                                <image href="${apiUrl}${encodedDot}" width="${img.width}" height="${img.height}" />
+                            </svg>
+                        `;
+                        resolve(svg);
+                    };
+                    
+                    img.onerror = () => {
+                        // Если API не работает, используем альтернативный метод
+                        renderDotViaQuickChart(dotCode).then(resolve).catch(reject);
+                    };
+                    
+                    img.src = `${apiUrl}${encodedDot}`;
+                });
+            }
+
+            // Альтернативный метод через QuickChart
+            async function renderDotViaQuickChart(dotCode) {
+                return new Promise((resolve, reject) => {
+                    const apiUrl = 'https://quickchart.io/graphviz?format=svg&graph=';
+                    const encodedDot = encodeURIComponent(dotCode);
+                    
+                    fetch(`${apiUrl}${encodedDot}`)
+                        .then(response => {
+                            if (!response.ok) throw new Error('API error');
+                            return response.text();
+                        })
+                        .then(svg => {
+                            resolve(svg);
+                        })
+                        .catch(error => {
+                            console.warn('QuickChart API error:', error);
+                            reject(error);
+                        });
                 });
             }
 
             function showDotFallback(container, dotCode) {
-                // Красивый fallback для GitHub Pages
+                // Декодируем для отображения
+                const decodedCode = dotCode
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"');
+                
+                // Красивый fallback
                 container.innerHTML = `
                     <div style="border: 2px solid #4d9de0; border-radius: 8px; padding: 20px; background: #f8f9fa;">
                         <div style="color: #4d9de0; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-diagram-project"></i> Graphviz диаграмма
                         </div>
                         <div style="background: white; padding: 15px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px; white-space: pre-wrap; overflow-x: auto; border: 1px solid #eee;">
-                            ${dotCode}
+                            ${decodedCode}
                         </div>
                         <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 4px; font-size: 12px; color: #1565c0;">
-                            <strong>ℹ️ Информация:</strong> На GitHub Pages рендеринг DOT диаграмм ограничен из-за политик безопасности.
-                            Для просмотра диаграмм запустите приложение локально или экспортируйте в PDF.
+                            <strong>ℹ️ Информация:</strong> API для рендеринга временно недоступен.
+                            Диаграмма будет отображена в PDF экспорте.
                         </div>
                     </div>
                 `;
@@ -1375,12 +1354,44 @@ digraph G {
                     
                     tempContainer.innerHTML = clean;
 
-                    // Для PDF используем текстовое представление DOT
+                    // Для PDF пытаемся получить SVG через API
                     const dotContainers = tempContainer.querySelectorAll('.dot-diagram-container');
-                    dotContainers.forEach(container => {
+                    for (const container of dotContainers) {
                         const dotCode = container.getAttribute('data-dot');
-                        if (dotCode) {
-                            // Декодируем для отображения
+                        if (!dotCode) continue;
+                        
+                        try {
+                            const decodedCode = dotCode
+                                .replace(/&amp;/g, '&')
+                                .replace(/&lt;/g, '<')
+                                .replace(/&gt;/g, '>')
+                                .replace(/&quot;/g, '"');
+                            
+                            // Пробуем получить SVG для PDF
+                            const svg = await renderDotViaQuickChart(decodedCode);
+                            container.innerHTML = svg;
+                            
+                            const svgElement = container.querySelector('svg');
+                            if (svgElement) {
+                                // Масштабируем для PDF
+                                const maxWidth = 450;
+                                const svgWidth = parseFloat(svgElement.getAttribute('width')) || 600;
+                                const svgHeight = parseFloat(svgElement.getAttribute('height')) || 400;
+                                
+                                if (svgWidth > maxWidth) {
+                                    const scale = maxWidth / svgWidth;
+                                    svgElement.setAttribute('width', maxWidth);
+                                    svgElement.setAttribute('height', svgHeight * scale);
+                                }
+                                
+                                svgElement.style.maxWidth = '100%';
+                                svgElement.style.height = 'auto';
+                                svgElement.style.display = 'block';
+                                svgElement.style.margin = '0 auto';
+                            }
+                        } catch (error) {
+                            console.warn('PDF DOT error:', error);
+                            // Fallback для PDF
                             const decodedCode = dotCode
                                 .replace(/&amp;/g, '&')
                                 .replace(/&lt;/g, '<')
@@ -1398,7 +1409,7 @@ ${decodedCode}
                                 </div>
                             `;
                         }
-                    });
+                    }
 
                     // Рендер математики для PDF
                     if (window.renderMathInElement) {
@@ -1669,18 +1680,18 @@ ${decodedCode}
             // Сначала инициализируем интерфейс
             updatePreview();
             
-            // Затем асинхронно загружаем библиотеки
+            // Затем асинхронно загружаем KaTeX
             setTimeout(async () => {
                 try {
-                    console.log('Загружаем библиотеки для GitHub Pages...');
-                    await Promise.all([loadKaTeX(), loadVizForGitHubPages()]);
-                    console.log('Библиотеки загружены');
+                    console.log('Загружаем KaTeX...');
+                    await loadKaTeX();
+                    console.log('KaTeX загружен');
                     
-                    // Перерисовываем предпросмотр после загрузки библиотек
+                    // Перерисовываем предпросмотр после загрузки KaTeX
                     updatePreview();
                 } catch (error) {
-                    console.warn('Некоторые библиотеки не загрузились:', error);
-                    showNotification('Некоторые функции могут не работать на GitHub Pages', 'error');
+                    console.warn('KaTeX не загрузился:', error);
+                    showNotification('Формулы LaTeX могут не работать', 'error');
                 }
             }, 100);
         };
