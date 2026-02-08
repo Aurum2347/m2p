@@ -6,6 +6,7 @@
 <title>Markdown2PDF Pro</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
 <style>
 :root {
@@ -212,6 +213,7 @@ box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 .header-btn:hover {
 background: rgba(77, 157, 224, 0.2);
 border-color: var(--accent-color);
+color: var(--accent-color);
 transform: translateY(-1px);
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -578,7 +580,7 @@ height: 4px;
 background: linear-gradient(90deg, var(--accent-color), #6cb4ee);
 border-radius: 12px 12px 0 0;
 }
-/* Стили контента (улучшенные) */
+/* Стили контента */
 .preview-content h1 {
 font-size: 2.1em;
 margin-bottom: 0.55em;
@@ -1351,10 +1353,10 @@ background: #d32f2f;
 $$
 \int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
 $$
-Система уравнений:
+Система уравнений (исправлено: двойной обратный слеш):
 $$
 \begin{cases}
-x + y = 5 \\
+x + y = 5 \\ 
 2x - y = 1
 \end{cases}
 $$
@@ -1369,7 +1371,7 @@ $$
 > — Алан Кей
 ## 🔗 Ссылки
 [Посетите GitHub автора](https://github.com/Aurum2347)
-## 📁 Блок-схема DOT
+## 📁 Блок-схема DOT (работает локально!)
 ```dot
 digraph G {
 rankdir=LR;
@@ -1483,7 +1485,6 @@ Server2 -- Cache;
 <script>
 // ==================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ====================
 let graphvizInstance = null;
-let isLocalFile = window.location.protocol === 'file:';
 let currentSearchIndex = -1;
 let searchResults = [];
 let themeToggleBtn = null;
@@ -1622,7 +1623,7 @@ console.log('Graphviz успешно загружен из кэша');
 updatePreview();
 return graphvizInstance;
 }
-// Загружаем библиотеку Graphviz
+// Загружаем библиотеку Graphviz через WebAssembly (работает локально!)
 const script = document.createElement('script');
 script.src = 'https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2.15.0/dist/graphviz.umd.min.js';
 await new Promise((resolve, reject) => {
@@ -1633,7 +1634,7 @@ document.head.appendChild(script);
 // Инициализируем экземпляр
 if (window.Graphviz) {
 graphvizInstance = await window.Graphviz.load();
-console.log('Graphviz успешно загружен');
+console.log('Graphviz успешно загружен через WebAssembly');
 // Перерисовываем предпросмотр для отображения диаграмм
 updatePreview();
 }
