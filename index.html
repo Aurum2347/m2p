@@ -4,17 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Markdown2PDF Pro</title>
-<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- KaTeX CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-<!-- DOMPurify -->
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2.15.0/dist/graphviz.umd.min.js"></script>
 <style>
-/* ==================== ТЕМА ==================== */
 :root {
-  /* Темная тема по умолчанию */
   --bg-primary: #1a1f2b;
   --bg-secondary: #222837;
   --bg-panel: #252b3a;
@@ -34,26 +28,14 @@
   --error-color: #ef4444;
   --warning-color: #f59e0b;
   --quote-color: #a0a8bc;
-  --stats-bg: #2a3141;
-  --stats-text: #b0b8cc;
-  --dot-bg: #f8f9fa;
-  --dot-border: #dee2e6;
-  --dot-text: #495057;
-  --dot-note-bg: #e3f2fd;
-  --dot-note-text: #1565c0;
-  --scrollbar-thumb: #3a4154;
-  --scrollbar-thumb-hover: #4a5265;
+  --search-bg: #2a3141;
+  --search-border: #4a5265;
+  --search-highlight: rgba(77, 157, 224, 0.3);
+  --current-line-bg: rgba(77, 157, 224, 0.15);
+  --theme-icon: #ffc107;
   --notification-shadow: 0 4px 12px rgba(0,0,0,0.25);
   --panel-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   --modal-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-  --button-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  --input-bg: #2a3141;
-  --input-border: #3a4154;
-  --input-focus: #4d9de0;
-  --table-header-bg: #f6f8fa;
-  --table-border: #999999;
-  --page-break-color: #aaa;
-  --theme-icon: #ffc107;
 }
 
 :root[data-theme="light"] {
@@ -76,41 +58,18 @@
   --error-color: #ef4444;
   --warning-color: #f59e0b;
   --quote-color: #6c757d;
-  --stats-bg: #e9ecef;
-  --stats-text: #495057;
-  --dot-bg: #f8f9fa;
-  --dot-border: #dee2e6;
-  --dot-text: #495057;
-  --dot-note-bg: #e3f2fd;
-  --dot-note-text: #1565c0;
-  --scrollbar-thumb: #adb5bd;
-  --scrollbar-thumb-hover: #6c757d;
+  --search-bg: #ffffff;
+  --search-border: #ced4da;
+  --search-highlight: rgba(44, 123, 229, 0.2);
+  --current-line-bg: rgba(44, 123, 229, 0.1);
+  --theme-icon: #6c757d;
   --notification-shadow: 0 4px 12px rgba(0,0,0,0.1);
   --panel-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   --modal-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-  --button-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --input-bg: #ffffff;
-  --input-border: #ced4da;
-  --input-focus: #2c7be5;
-  --table-header-bg: #f8f9fa;
-  --table-border: #dee2e6;
-  --page-break-color: #ced4da;
-  --theme-icon: #6c757d;
 }
 
-/* ==================== БАЗОВЫЕ СТИЛИ ==================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
-  overflow: hidden;
-  font-size: 16px;
-}
-
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--bg-primary);
@@ -149,7 +108,7 @@ body {
   border: 1px solid var(--modal-border);
   border-radius: 12px;
   width: 90%;
-  max-width: 580px;
+  max-width: 560px;
   padding: 1.8rem;
   position: relative;
   box-shadow: var(--modal-shadow);
@@ -200,85 +159,6 @@ body {
 .close-modal:hover {
   color: var(--accent-color);
   background: rgba(77, 157, 224, 0.1);
-}
-
-.modal-body h2 {
-  margin: 1rem 0 0.8rem;
-  font-size: 1.25rem;
-  color: var(--accent-color);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.modal-body p, .modal-body blockquote {
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  font-size: 0.98rem;
-}
-
-.modal-body blockquote {
-  border-left: 3px solid var(--accent-color);
-  padding-left: 1rem;
-  color: var(--text-secondary);
-  font-style: italic;
-  background: rgba(77, 157, 224, 0.08);
-  border-radius: 0 4px 4px 0;
-  margin: 1.2rem 0;
-  padding: 0.8rem 1rem;
-}
-
-.modal-link-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--accent-color);
-  color: white;
-  padding: 0.6rem 1.3rem;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  margin-top: 0.5rem;
-  transition: all 0.2s;
-  border: 1px solid var(--accent-color);
-  gap: 0.5rem;
-  box-shadow: var(--button-shadow);
-}
-
-.modal-link-btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.modal-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin-top: 15px;
-  text-align: center;
-}
-
-.stat-item {
-  padding: 15px;
-  background: var(--stats-bg);
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: bold;
-  color: var(--accent-color);
-  margin: 5px 0;
-  font-family: 'Courier New', monospace;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 /* ==================== ШАПКА ==================== */
@@ -332,18 +212,14 @@ body {
   gap: 0.5rem;
   transition: all 0.25s ease;
   font-weight: 500;
-  box-shadow: var(--button-shadow);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .header-btn:hover {
   background: rgba(77, 157, 224, 0.2);
   border-color: var(--accent-color);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.header-btn:active {
-  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .theme-toggle-btn {
@@ -359,7 +235,7 @@ body {
   transition: all 0.25s ease;
   color: var(--theme-icon);
   font-size: 1.1rem;
-  box-shadow: var(--button-shadow);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .theme-toggle-btn:hover {
@@ -433,7 +309,7 @@ body {
   white-space: nowrap;
   min-width: 80px;
   font-weight: 500;
-  box-shadow: var(--button-shadow);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .tool-btn:hover {
@@ -441,19 +317,94 @@ body {
   border-color: var(--accent-color);
   color: var(--accent-color);
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
 }
 
 .tool-btn:active {
   transform: translateY(0);
 }
 
-.tool-btn i {
-  font-size: 0.95em;
-  min-width: 16px;
-  text-align: center;
+/* ==================== ПОИСК ==================== */
+.search-container {
+  display: none;
+  background: var(--search-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.6rem 0.9rem;
+  flex-shrink: 0;
+  animation: slideDown 0.25s ease;
 }
 
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.search-box {
+  display: flex;
+  gap: 0.6rem;
+  max-width: 400px;
+}
+
+.search-input {
+  background: var(--bg-primary);
+  border: 1px solid var(--search-border);
+  color: var(--text-primary);
+  padding: 0.45rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  flex: 1;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(77, 157, 224, 0.2);
+}
+
+.search-btn, .search-close {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.search-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.search-close {
+  background: #e57373;
+  margin-left: 0.4rem;
+}
+
+.search-close:hover {
+  background: #d32f2f;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(229, 115, 115, 0.3);
+}
+
+.search-status {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-left: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ==================== РЕДАКТОР ==================== */
 .editor-container {
   position: relative;
   flex: 1;
@@ -462,28 +413,10 @@ body {
   overflow: hidden;
 }
 
-.editor-stats {
-  background: var(--stats-bg);
-  border-top: 1px solid var(--border-color);
-  padding: 0.55rem 1rem;
-  font-size: 0.88rem;
-  color: var(--stats-text);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-  font-family: 'Segoe UI', system-ui, sans-serif;
-}
-
-.editor-stats span {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.editor-stats i {
-  color: var(--accent-color);
-  font-size: 0.95em;
+.editor-wrapper {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
 }
 
 .editor {
@@ -500,10 +433,17 @@ body {
   caret-color: var(--accent-color);
   overflow: auto;
   transition: background-color 0.3s ease, color 0.3s ease;
+  width: 100%;
+  height: 100%;
 }
 
 .editor:focus {
   box-shadow: inset 0 0 0 2px rgba(77, 157, 224, 0.3);
+}
+
+/* Подсветка текущей строки */
+.editor.current-line::selection {
+  background: var(--search-highlight);
 }
 
 /* ==================== ПРЕДПРОСМОТР ==================== */
@@ -532,8 +472,8 @@ body {
 }
 
 .font-size-select {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   color: var(--text-primary);
   padding: 0.35rem 0.6rem;
   border-radius: 6px;
@@ -544,23 +484,18 @@ body {
 
 .font-size-select:focus {
   outline: none;
-  border-color: var(--input-focus);
+  border-color: var(--accent-color);
   box-shadow: 0 0 0 2px rgba(77, 157, 224, 0.2);
 }
 
 .document-input-group {
   display: flex;
   align-items: center;
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
-  transition: border-color 0.2s;
-}
-
-.document-input-group:focus-within {
-  border-color: var(--input-focus);
-  box-shadow: 0 0 0 2px rgba(77, 157, 224, 0.2);
+  max-width: 220px;
 }
 
 .document-input-group input {
@@ -598,7 +533,7 @@ body {
   gap: 0.55rem;
   transition: all 0.25s ease;
   font-weight: 600;
-  box-shadow: var(--button-shadow);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   min-width: 90px;
   justify-content: center;
 }
@@ -650,7 +585,7 @@ body {
   border-radius: 12px 12px 0 0;
 }
 
-/* Стили для предпросмотра контента */
+/* Стили контента (без изменений от оригинала, но с улучшениями) */
 .preview-content h1 {
   font-size: 2.1em;
   margin-bottom: 0.55em;
@@ -750,10 +685,10 @@ body {
 .dot-diagram-container {
   text-align: center;
   margin: 1.5rem 0;
-  background: var(--dot-bg);
+  background: white;
   padding: 20px;
   border-radius: 10px;
-  border: 1px solid var(--dot-border);
+  border: 1px solid var(--code-border);
   overflow: hidden;
   page-break-inside: avoid;
   break-inside: avoid;
@@ -786,20 +721,20 @@ body {
   font-size: 13.5px;
   white-space: pre-wrap;
   overflow-x: auto;
-  border: 1px solid var(--dot-border);
+  border: 1px solid var(--code-border);
   box-shadow: 0 2px 6px rgba(0,0,0,0.06);
   line-height: 1.45;
   margin: 10px 0;
-  color: var(--dot-text);
+  color: #495057;
 }
 
 .dot-note {
   margin-top: 15px;
   padding: 14px;
-  background: var(--dot-note-bg);
+  background: #e3f2fd;
   border-radius: 6px;
   font-size: 13.5px;
-  color: var(--dot-note-text);
+  color: #1565c0;
   border-left: 4px solid var(--accent-color);
   line-height: 1.5;
 }
@@ -839,14 +774,14 @@ body {
 
 .preview-content th,
 .preview-content td {
-  border: 1px solid var(--table-border);
+  border: 1px solid #999999;
   padding: 0.75rem 1rem;
   text-align: left;
   line-height: 1.4;
 }
 
 .preview-content th {
-  background-color: var(--table-header-bg);
+  background-color: #f6f8fa;
   font-weight: 600;
   color: #2c3e50;
 }
@@ -862,7 +797,7 @@ body {
   height: 1px;
   margin: 2.2rem 0;
   border: none;
-  border-top: 1px dashed var(--page-break-color);
+  border-top: 1px dashed #aaa;
   width: 100%;
   position: relative;
   text-align: center;
@@ -908,21 +843,6 @@ body {
   font-style: italic;
 }
 
-.footer-status {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.88rem;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--success-color);
-  border-radius: 50%;
-  display: inline-block;
-}
-
 /* ==================== СКРОЛЛБАРЫ ==================== */
 ::-webkit-scrollbar {
   width: 8px;
@@ -935,15 +855,14 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
+  background: var(--border-color);
   border-radius: 4px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover);
-  border-radius: 4px;
+  background: #4a5265;
 }
 
 /* ==================== УВЕДОМЛЕНИЯ ==================== */
@@ -1014,6 +933,28 @@ body {
 #notification button:hover {
   color: var(--text-primary);
   background: rgba(0,0,0,0.05);
+}
+
+/* Прогресс-бар уведомления */
+.notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--accent-color);
+  border-radius: 0 0 12px 12px;
+  width: 100%;
+  animation: progress 5s linear forwards;
+  animation-play-state: running;
+}
+
+#notification:hover .notification-progress {
+  animation-play-state: paused;
+}
+
+@keyframes progress {
+  from { width: 100%; }
+  to { width: 0%; }
 }
 
 /* ==================== PDF LOADER ==================== */
@@ -1139,20 +1080,7 @@ body {
   font-size: 0.95em;
 }
 
-.dropdown-item pre {
-  margin: 5px 0;
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--text-primary);
-  font-family: 'Consolas', monospace;
-  font-size: 0.9em;
-  background: rgba(0,0,0,0.05);
-  padding: 3px 6px;
-  border-radius: 4px;
-}
-
-/* ==================== РЕДАКТОР ТАБЛИЦ ==================== */
+/* ==================== ТАБЛИЧНЫЙ РЕДАКТОР ==================== */
 .table-grid {
   display: grid;
   gap: 3px;
@@ -1201,7 +1129,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  box-shadow: var(--button-shadow);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
 .table-controls button:hover {
@@ -1210,194 +1138,42 @@ body {
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-.table-controls button:active {
-  transform: translateY(0);
-}
-
-/* ==================== ИЗОБРАЖЕНИЯ ==================== */
-.image-dropzone {
-  border: 2px dashed var(--border-color);
-  border-radius: 10px;
-  padding: 25px;
-  text-align: center;
-  margin: 15px 0;
-  background: rgba(77, 157, 224, 0.05);
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.image-dropzone:hover {
-  border-color: var(--accent-color);
-  background: rgba(77, 157, 224, 0.1);
-}
-
-.image-dropzone.dragover {
-  border-color: var(--accent-color);
-  background: rgba(77, 157, 224, 0.15);
-  transform: scale(1.02);
-}
-
-.image-dropzone i {
-  font-size: 2.5rem;
-  color: var(--accent-color);
-  margin-bottom: 10px;
-}
-
-.image-dropzone p {
-  color: var(--text-secondary);
-  margin-top: 8px;
-  font-size: 0.95rem;
-}
-
 /* ==================== АДАПТИВНОСТЬ ==================== */
 @media (max-width: 1100px) {
-  .content-area { 
-    grid-template-columns: 1fr; 
-  }
-  
-  .preview-content {
-    width: 92%;
-    padding: 1.8rem 1.5rem;
-  }
-  
-  .main-container {
-    padding: 1rem 1.5rem 0.5rem;
-  }
-  
-  .header {
-    padding: 0.5rem 1.5rem;
-  }
-  
-  .header-title {
-    font-size: 1.15rem;
-  }
-  
-  .document-input-group {
-    max-width: 180px;
-  }
-  
-  .document-input-group input {
-    width: 120px;
-    font-size: 0.9rem;
-  }
-  
-  .document-extension {
-    font-size: 0.9rem;
-    min-width: 38px;
-  }
-  
-  .font-size-select {
-    min-width: 65px;
-    font-size: 0.88rem;
-    padding: 0.3rem 0.5rem;
-  }
-  
-  .tool-btn {
-    min-width: 70px;
-    padding: 0.38rem 0.6rem;
-    font-size: 0.85rem;
-  }
-  
-  .tool-btn span {
-    display: none;
-  }
-  
-  .tool-btn i {
-    margin: 0;
-  }
+  .content-area { grid-template-columns: 1fr; }
+  .preview-content { width: 92%; padding: 1.8rem 1.5rem; }
+  .main-container { padding: 1rem 1.5rem 0.5rem; }
+  .header { padding: 0.5rem 1.5rem; }
+  .header-title { font-size: 1.15rem; }
+  .document-input-group { max-width: 180px; }
+  .document-input-group input { width: 120px; font-size: 0.9rem; }
+  .document-extension { font-size: 0.9rem; min-width: 38px; }
+  .font-size-select { min-width: 65px; font-size: 0.88rem; padding: 0.3rem 0.5rem; }
+  .tool-btn { min-width: 70px; padding: 0.38rem 0.6rem; font-size: 0.85rem; }
+  .tool-btn span { display: none; }
+  .tool-btn i { margin: 0; }
 }
 
 @media (max-width: 768px) {
-  .toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-  
-  .toolbar-left, .toolbar-right {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .preview-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    height: auto;
-  }
-  
-  .font-size-control, .document-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .download-btn {
-    width: 100%;
-    padding: 0.55rem;
-    font-size: 1.05rem;
-  }
-  
-  .editor-stats {
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
-  }
-  
-  .footer-container {
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
-  }
-  
-  .modal-content {
-    width: 95%;
-    padding: 1.5rem;
-  }
+  .toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+  .toolbar-left, .toolbar-right { width: 100%; justify-content: space-between; }
+  .preview-header { flex-direction: column; align-items: stretch; gap: 12px; height: auto; }
+  .font-size-control, .document-actions { width: 100%; justify-content: space-between; }
+  .download-btn { width: 100%; padding: 0.55rem; font-size: 1.05rem; }
+  .footer-container { flex-direction: column; gap: 8px; text-align: center; }
+  .modal-content { width: 95%; padding: 1.5rem; }
 }
 
 @media (max-width: 480px) {
-  .header-buttons {
-    gap: 0.4rem;
-  }
-  
-  .header-btn {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.85rem;
-  }
-  
-  .header-btn span {
-    display: none;
-  }
-  
-  .theme-toggle-btn {
-    width: 38px;
-    height: 38px;
-  }
-  
-  .preview-content {
-    width: 95%;
-    padding: 1.5rem 1.2rem;
-    font-size: 13.5px;
-  }
-  
-  .preview-content h1 {
-    font-size: 1.9em;
-  }
-  
-  .preview-content h2 {
-    font-size: 1.5em;
-  }
-  
-  .editor {
-    font-size: 13.5px;
-    padding: 0.9rem;
-  }
-  
-  .tool-btn {
-    min-width: 60px;
-    padding: 0.35rem 0.5rem;
-    font-size: 0.8rem;
-  }
+  .header-buttons { gap: 0.4rem; }
+  .header-btn { padding: 0.4rem 0.6rem; font-size: 0.85rem; }
+  .header-btn span { display: none; }
+  .theme-toggle-btn { width: 38px; height: 38px; }
+  .preview-content { width: 95%; padding: 1.5rem 1.2rem; font-size: 13.5px; }
+  .preview-content h1 { font-size: 1.9em; }
+  .preview-content h2 { font-size: 1.5em; }
+  .editor { font-size: 13.5px; padding: 0.9rem; }
+  .tool-btn { min-width: 60px; padding: 0.35rem 0.5rem; font-size: 0.8rem; }
 }
 </style>
 </head>
@@ -1418,37 +1194,27 @@ body {
         <li>Полная поддержка Markdown форматирования</li>
         <li>Рендеринг математических формул через KaTeX</li>
         <li>Поддержка DOT-диаграмм (Graphviz)</li>
-        <li>Вставка изображений через перетаскивание и буфер обмена</li>
-        <li>Автосохранение черновиков</li>
         <li>Светлая и тёмная темы</li>
         <li>Экспорт в PDF с сохранением форматирования</li>
+        <li>Встроенный поиск по документу</li>
+        <li>Автоматическое форматирование таблиц</li>
       </ul>
       
       <blockquote>
         <p>Используйте <code>```dot ... ```</code> для создания диаграмм Graphviz.</p>
-        <p>Для вставки изображений просто перетащите файл в редактор или вставьте из буфера обмена (Ctrl+V).</p>
+        <p>Нажмите <code>Ctrl+F</code> для поиска по документу.</p>
       </blockquote>
       
       <h2><i class="fas fa-chart-line"></i> Статистика использования</h2>
-      <div class="modal-stats-grid">
-        <div class="stat-item">
-          <div class="stat-value" id="statDownloads">0</div>
-          <div class="stat-label">PDF скачано</div>
+      <div style="display: flex; gap: 20px; margin-top: 15px;">
+        <div>
+          <div style="font-size: 28px; font-weight: bold; color: var(--accent-color);" id="statDownloads">0</div>
+          <div style="font-size: 13px; color: var(--text-secondary);">PDF скачано</div>
         </div>
-        <div class="stat-item">
-          <div class="stat-value" id="statChars">0</div>
-          <div class="stat-label">Символов обработано</div>
+        <div>
+          <div style="font-size: 28px; font-weight: bold; color: var(--accent-color);" id="statChars">0</div>
+          <div style="font-size: 13px; color: var(--text-secondary);">Символов обработано</div>
         </div>
-      </div>
-      
-      <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border-color);">
-        <button id="clearDraftBtn" class="modal-link-btn" style="background: var(--error-color); border-color: var(--error-color);">
-          <i class="fas fa-eraser"></i> Очистить черновик
-        </button>
-        <p style="margin-top: 12px; font-size: 0.9rem; color: var(--text-secondary);">
-          <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
-          Черновик сохраняется в браузере до очистки. Ваши данные никогда не покидают ваш компьютер.
-        </p>
       </div>
     </div>
   </div>
@@ -1466,7 +1232,7 @@ body {
       <h2><i class="fas fa-code"></i> Создано с любовью</h2>
       <p>Этот инструмент разработан для удобной работы с документами. Автор вложил много усилий в создание качественного и функционального приложения.</p>
       
-      <div style="background: var(--stats-bg); border-radius: 10px; padding: 15px; margin: 20px 0; border: 1px solid var(--border-color);">
+      <div style="background: var(--bg-secondary); border-radius: 10px; padding: 15px; margin: 20px 0; border: 1px solid var(--border-color);">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
           <i class="fab fa-github" style="font-size: 1.8rem; color: var(--accent-color);"></i>
           <div>
@@ -1474,7 +1240,7 @@ body {
             <div style="color: var(--text-secondary); font-size: 0.95rem;">GitHub профиль автора</div>
           </div>
         </div>
-        <a href="https://github.com/Aurum2347" target="_blank" class="modal-link-btn" style="width: 100%; justify-content: center;">
+        <a href="https://github.com/Aurum2347" target="_blank" style="display: inline-block; background: var(--accent-color); color: white; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 10px; text-align: center; width: 100%;">
           <i class="fab fa-github"></i> Перейти на GitHub
         </a>
       </div>
@@ -1527,11 +1293,11 @@ body {
         </button>
       </div>
       
-      <button id="insertTableConfirm" style="width:100%; margin-top:20px; padding: 12px; background: linear-gradient(45deg, var(--accent-color), #3a85c9); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 1.05rem; box-shadow: var(--button-shadow);">
+      <button id="insertTableConfirm" style="width:100%; margin-top:20px; padding: 12px; background: linear-gradient(45deg, var(--accent-color), #3a85c9); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 1.05rem;">
         <i class="fas fa-table"></i> Вставить таблицу в документ
       </button>
       
-      <div style="margin-top: 15px; padding: 12px; background: var(--stats-bg); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.9rem;">
+      <div style="margin-top: 15px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.9rem;">
         <i class="fas fa-lightbulb" style="color: var(--accent-color); margin-right: 5px;"></i>
         Совет: После вставки таблицы вы можете редактировать её прямо в редакторе Markdown.
       </div>
@@ -1577,9 +1343,6 @@ body {
               <div class="dropdown-item" onclick="insertTextAtCursor('Заголовок 3', '### ', '')">
                 <i class="fas fa-heading"></i> <pre>### Заголовок 3</pre>
               </div>
-              <div class="dropdown-item" onclick="insertTextAtCursor('Заголовок 4', '#### ', '')">
-                <i class="fas fa-heading"></i> <pre>#### Заголовок 4</pre>
-              </div>
             </div>
           </div>
           <button class="tool-btn" title="Жирный" data-format="bold">
@@ -1591,11 +1354,14 @@ body {
           <button class="tool-btn" title="Ссылка" data-format="link">
             <i class="fas fa-link"></i> <span>Ссылка</span>
           </button>
-          <button class="tool-btn" title="Изображение" data-format="image">
-            <i class="fas fa-image"></i> <span>Изображение</span>
-          </button>
           <button class="tool-btn" title="Таблица" id="insertTableBtn">
             <i class="fas fa-table"></i> <span>Таблица</span>
+          </button>
+          <button class="tool-btn" title="Поиск" id="toggleSearch">
+            <i class="fas fa-search"></i> <span>Поиск</span>
+          </button>
+          <button class="tool-btn" title="Очистить" id="clearEditor" style="background: #e57373; border-color: #d32f2f;">
+            <i class="fas fa-trash-alt"></i> <span>Очистить</span>
           </button>
         </div>
         <div class="toolbar-right">
@@ -1613,19 +1379,37 @@ body {
           </button>
         </div>
       </div>
+      
+      <!-- Панель поиска -->
+      <div class="search-container" id="searchContainer">
+        <div style="display: flex; align-items: center; gap: 1rem; width: 100%;">
+          <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="Поиск в документе...">
+            <button class="search-btn" id="searchNext">
+              <i class="fas fa-arrow-down"></i>
+            </button>
+            <button class="search-close" id="closeSearch">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="search-status" id="searchStatus">0 из 0</div>
+        </div>
+      </div>
+      
       <div class="editor-container">
-        <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш документ в формате Markdown..."># Добро пожаловать в Markdown2PDF Pro!
+        <div class="editor-wrapper">
+          <textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш документ в формате Markdown..."># Добро пожаловать в Markdown2PDF Pro!
 
 Это улучшенная версия приложения для конвертации Markdown в PDF. Все функции работают в вашем браузере без отправки данных на сервер.
 
 ## 🔥 Новые возможности
 
-- **Автосохранение** - ваш текст сохраняется каждые 2 секунды
-- **Вставка изображений** - перетащите изображение в редактор или вставьте из буфера (Ctrl+V)
-- **Светлая тема** - переключайтесь между темной и светлой темой
-- **Статистика** - отслеживайте количество символов и слов в реальном времени
-- **Улучшенный экспорт** - идеальное форматирование PDF
-- **DOT-диаграммы** - поддержка Graphviz для создания схем
+- **Светлая/тёмная тема** - переключайтесь в шапке
+- **Встроенный поиск** - нажмите Ctrl+F или кнопку "Поиск"
+- **Улучшенный экспорт PDF** - идеальное форматирование
+- **Автоматическое форматирование таблиц** - при вставке
+- **Очистка недопустимых символов** в имени файла
+- **Улучшенные уведомления** с прогресс-баром
 
 ## 📐 Математические формулы
 
@@ -1635,10 +1419,6 @@ body {
 $$
 \int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
 $$
-
-## 🖼️ Изображения
-
-Просто перетащите изображение в редактор или нажмите Ctrl+V для вставки из буфера обмена.
 
 ## 📊 Таблицы
 
@@ -1691,10 +1471,6 @@ digraph G {
 ## ✨ Заключение
 
 Этот инструмент создан для максимального удобства при работе с документами. Все функции оптимизированы для быстрой и комфортной работы. Приятного использования!</textarea>
-        <div class="editor-stats">
-          <span><i class="fas fa-text-height"></i> Символов: <strong id="charCount">0</strong></span>
-          <span><i class="fas fa-font"></i> Слов: <strong id="wordCount">0</strong></span>
-          <span><i class="fas fa-save"></i> <span id="saveStatus">Автосохранение включено</span></span>
         </div>
       </div>
     </div>
@@ -1726,7 +1502,7 @@ digraph G {
       <div class="footer-container">
         <div>
           <span class="footer-status">
-            <span class="status-dot"></span> Готово к экспорту
+            <span class="status-dot" style="display:inline-block;width:8px;height:8px;background:#10b981;border-radius:50%;margin-right:6px;"></span> Готово к экспорту
           </span>
         </div>
         <div>
@@ -1747,6 +1523,7 @@ digraph G {
   <i class="fas fa-check-circle success"></i>
   <span id="notificationText">Документ успешно сохранен!</span>
   <button onclick="closeNotification()">&times;</button>
+  <div class="notification-progress"></div>
 </div>
 
 <!-- PDF Loader -->
@@ -1766,24 +1543,27 @@ digraph G {
 <script>
 // ==================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ====================
 let graphvizInstance = null;
-let draftTimeout = null;
-let imageCache = new Map(); // Кэш для изображений (до перезагрузки страницы)
 let isLocalFile = window.location.protocol === 'file:';
+let currentSearchIndex = -1;
+let searchResults = [];
 let themeToggleBtn = null;
 let editor = null;
 let preview = null;
 let downloadBtn = null;
 let documentNameInput = null;
-let docNameLabel = null;
 let fontSizeSelect = null;
 let notification = null;
 let pdfLoader = null;
 let insertHeadingBtn = null;
 let headingMenu = null;
 let insertTableBtn = null;
-let charCountEl = null;
-let wordCountEl = null;
-let saveStatusEl = null;
+let searchContainer = null;
+let searchInput = null;
+let searchNextBtn = null;
+let closeSearchBtn = null;
+let searchStatusEl = null;
+let toggleSearchBtn = null;
+let clearEditorBtn = null;
 let downloadCount = 0;
 let totalChars = 0;
 
@@ -1800,9 +1580,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   insertHeadingBtn = document.getElementById('insertHeading');
   headingMenu = document.getElementById('headingMenu');
   insertTableBtn = document.getElementById('insertTableBtn');
-  charCountEl = document.getElementById('charCount');
-  wordCountEl = document.getElementById('wordCount');
-  saveStatusEl = document.getElementById('saveStatus');
+  searchContainer = document.getElementById('searchContainer');
+  searchInput = document.getElementById('searchInput');
+  searchNextBtn = document.getElementById('searchNext');
+  closeSearchBtn = document.getElementById('closeSearch');
+  searchStatusEl = document.getElementById('searchStatus');
+  toggleSearchBtn = document.getElementById('toggleSearch');
+  clearEditorBtn = document.getElementById('clearEditor');
   themeToggleBtn = document.getElementById('themeToggle');
   
   // Загрузка статистики
@@ -1813,12 +1597,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Загрузка темы
   loadTheme();
-  
-  // Загрузка черновика
-  loadDraft();
-  
-  // Обновление статистики
-  updateStats();
   
   // Обновление предпросмотра
   updatePreview();
@@ -1836,7 +1614,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Показать приветственное уведомление
   setTimeout(() => {
-    showNotification('Добро пожаловать в Markdown2PDF Pro! Начните писать документ или вставьте изображение.', 'success', 5000);
+    showNotification('Добро пожаловать в Markdown2PDF Pro! Нажмите Ctrl+F для поиска по документу.', 'success', 6000);
   }, 1000);
 });
 
@@ -1917,12 +1695,13 @@ async function loadGraphviz() {
     });
     
     // Инициализируем экземпляр
-    graphvizInstance = await window.Graphviz.load();
-    console.log('Graphviz успешно загружен');
-    
-    // Перерисовываем предпросмотр для отображения диаграмм
-    updatePreview();
-    
+    if (window.Graphviz) {
+      graphvizInstance = await window.Graphviz.load();
+      console.log('Graphviz успешно загружен');
+      
+      // Перерисовываем предпросмотр для отображения диаграмм
+      updatePreview();
+    }
     return graphvizInstance;
   } catch (error) {
     console.warn('Не удалось загрузить Graphviz:', error);
@@ -1933,20 +1712,7 @@ async function loadGraphviz() {
 // ==================== НАСТРОЙКА ОБРАБОТЧИКОВ СОБЫТИЙ ====================
 function setupEventListeners() {
   // Обновление предпросмотра при вводе
-  editor.addEventListener('input', () => {
-    updatePreview();
-    updateStats();
-    
-    // Автосохранение с debounce
-    clearTimeout(draftTimeout);
-    draftTimeout = setTimeout(() => {
-      localStorage.setItem('markdownDraft', editor.value);
-      saveStatusEl.textContent = 'Сохранено';
-      setTimeout(() => {
-        saveStatusEl.textContent = 'Автосохранение включено';
-      }, 2000);
-    }, 2000);
-  });
+  editor.addEventListener('input', updatePreview);
   
   // Обработчики кнопок форматирования
   document.querySelectorAll('.tool-btn[data-format]').forEach(btn => {
@@ -1999,10 +1765,13 @@ function setupEventListeners() {
   // Экспорт в PDF
   downloadBtn.addEventListener('click', downloadPDF);
   
-  // Изменение имени документа
+  // Изменение имени документа с очисткой недопустимых символов
   documentNameInput.addEventListener('input', () => {
     // Очистка недопустимых символов для имени файла
-    documentNameInput.value = documentNameInput.value.replace(/[<>:"/\\|?*]/g, '');
+    let value = documentNameInput.value;
+    value = value.replace(/[<>:"/\\|?*]/g, '');
+    documentNameInput.value = value;
+    document.getElementById('docNameLabel').textContent = (value || 'document') + '.pdf';
   });
   
   // Изменение размера шрифта
@@ -2019,40 +1788,55 @@ function setupEventListeners() {
     });
   });
   
-  // Очистка черновика
-  document.getElementById('clearDraftBtn').addEventListener('click', () => {
-    localStorage.removeItem('markdownDraft');
-    editor.value = '# Новый документ\n\nНачните писать здесь...';
-    updatePreview();
-    updateStats();
-    showNotification('Черновик успешно очищен', 'success');
-    document.getElementById('modalInfo').classList.remove('active');
+  // Поиск
+  toggleSearchBtn.addEventListener('click', toggleSearchPanel);
+  closeSearchBtn.addEventListener('click', closeSearchPanel);
+  searchNextBtn.addEventListener('click', findNext);
+  searchInput.addEventListener('input', performSearch);
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      findNext();
+    }
   });
   
-  // Вставка изображений через буфер обмена
-  editor.addEventListener('paste', handleImagePaste);
-  
-  // Перетаскивание изображений
-  editor.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    editor.classList.add('dragover');
-  });
-  
-  editor.addEventListener('dragleave', () => {
-    editor.classList.remove('dragover');
-  });
-  
-  editor.addEventListener('drop', handleImageDrop);
-  
-  // Закрытие модальных окон по ESC
+  // Горячая клавиша Ctrl+F для поиска
   document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'f') {
+      e.preventDefault();
+      toggleSearchPanel();
+      if (searchContainer.style.display !== 'none') {
+        searchInput.focus();
+        searchInput.select();
+      }
+    }
+    
+    // Закрытие модальных окон и панели поиска по ESC
     if (e.key === 'Escape') {
+      closeSearchPanel();
       document.querySelectorAll('.modal-backdrop.active').forEach(modal => {
         modal.classList.remove('active');
       });
       document.body.style.overflow = '';
       headingMenu.classList.remove('active');
     }
+  });
+  
+  // Очистка редактора
+  clearEditorBtn.addEventListener('click', () => {
+    if (confirm('Вы уверены, что хотите очистить весь документ? Это действие нельзя отменить.')) {
+      editor.value = '# Новый документ\n\nНачните писать здесь...';
+      updatePreview();
+      showNotification('Документ успешно очищен', 'success');
+    }
+  });
+  
+  // Подсветка текущей строки в редакторе
+  editor.addEventListener('scroll', highlightCurrentLine);
+  editor.addEventListener('mousemove', highlightCurrentLine);
+  editor.addEventListener('focus', highlightCurrentLine);
+  editor.addEventListener('blur', () => {
+    editor.classList.remove('current-line');
   });
 }
 
@@ -2073,13 +1857,10 @@ function applyFormat(format) {
     case 'link':
       newText = `[${selectedText || 'текст ссылки'}](https://example.com)`;
       break;
-    case 'image':
-      newText = `![${selectedText || 'описание изображения'}](https://example.com/image.jpg)`;
-      break;
     case 'list':
       newText = selectedText 
         ? selectedText.split('\n').map(line => `- ${line}`).join('\n')
-        : `- Элемент списка 1\n- Элемент списка 2\n- Элемент списка 3`;
+        : `- Элемент списка 1\n- Элемент списка 2`;
       break;
     case 'code':
       newText = selectedText 
@@ -2123,76 +1904,90 @@ function insertTextAtCursor(text, wrapBefore = '', wrapAfter = '') {
   updatePreview();
 }
 
-// ==================== ВСТАВКА ИЗОБРАЖЕНИЙ ====================
-async function handleImagePaste(e) {
-  const clipboardData = e.clipboardData;
-  const items = clipboardData.items;
-  
-  for (let i = 0; i < items.length; i++) {
-    if (items[i].type.indexOf('image') !== -1) {
-      e.preventDefault();
-      const file = items[i].getAsFile();
-      
-      if (file.size > 1024 * 1024) { // Ограничение 1 МБ
-        showNotification('Изображение слишком большое (макс. 1 МБ)', 'error');
-        return;
-      }
-      
-      await insertImageFile(file);
-      return;
-    }
+// ==================== ПОИСК ====================
+function toggleSearchPanel() {
+  if (searchContainer.style.display === 'none' || searchContainer.style.display === '') {
+    searchContainer.style.display = 'block';
+    searchInput.focus();
+    searchInput.select();
+    performSearch();
+  } else {
+    closeSearchPanel();
   }
 }
 
-async function handleImageDrop(e) {
-  e.preventDefault();
-  editor.classList.remove('dragover');
+function closeSearchPanel() {
+  searchContainer.style.display = 'none';
+  searchInput.value = '';
+  searchStatusEl.textContent = '0 из 0';
+  currentSearchIndex = -1;
+  searchResults = [];
+  editor.focus();
+}
+
+function performSearch() {
+  const searchTerm = searchInput.value.trim();
+  if (!searchTerm) {
+    searchStatusEl.textContent = '0 из 0';
+    currentSearchIndex = -1;
+    searchResults = [];
+    return;
+  }
   
-  if (e.dataTransfer.files.length) {
-    const file = e.dataTransfer.files[0];
-    
-    if (!file.type.match('image.*')) {
-      showNotification('Можно вставлять только изображения', 'warning');
-      return;
-    }
-    
-    if (file.size > 1024 * 1024) { // Ограничение 1 МБ
-      showNotification('Изображение слишком большое (макс. 1 МБ)', 'error');
-      return;
-    }
-    
-    await insertImageFile(file);
+  const content = editor.value;
+  searchResults = [];
+  let index = content.indexOf(searchTerm, 0);
+  
+  while (index !== -1) {
+    searchResults.push(index);
+    index = content.indexOf(searchTerm, index + 1);
+  }
+  
+  currentSearchIndex = searchResults.length > 0 ? 0 : -1;
+  updateSearchStatus();
+  
+  if (searchResults.length > 0) {
+    highlightSearchResult();
   }
 }
 
-async function insertImageFile(file) {
-  const reader = new FileReader();
+function findNext() {
+  if (searchResults.length === 0) {
+    performSearch();
+    return;
+  }
   
-  return new Promise((resolve) => {
-    reader.onload = async (event) => {
-      const base64 = event.target.result;
-      const fileName = file.name.replace(/\.[^/.]+$/, "");
-      
-      // Сохраняем в кэш (до перезагрузки страницы)
-      const cacheKey = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      imageCache.set(cacheKey, base64);
-      
-      // Вставляем в редактор
-      const startPos = editor.selectionStart;
-      const endPos = editor.selectionEnd;
-      const imgMarkdown = `![${fileName}](${cacheKey})`;
-      
-      editor.value = editor.value.substring(0, startPos) + imgMarkdown + editor.value.substring(endPos);
-      editor.selectionStart = editor.selectionEnd = startPos + imgMarkdown.length;
-      editor.focus();
-      
-      updatePreview();
-      showNotification(`Изображение "${fileName}" добавлено в документ`, 'success');
-      resolve();
-    };
-    
-    reader.readAsDataURL(file);
-  });
+  currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
+  updateSearchStatus();
+  highlightSearchResult();
+}
+
+function updateSearchStatus() {
+  if (searchResults.length === 0) {
+    searchStatusEl.textContent = '0 из 0';
+  } else {
+    searchStatusEl.textContent = `${currentSearchIndex + 1} из ${searchResults.length}`;
+  }
+}
+
+function highlightSearchResult() {
+  if (currentSearchIndex === -1 || searchResults.length === 0) return;
+  
+  const pos = searchResults[currentSearchIndex];
+  const searchTerm = searchInput.value.trim();
+  
+  editor.focus();
+  editor.setSelectionRange(pos, pos + searchTerm.length);
+}
+
+// ==================== ПОДСВЕТКА ТЕКУЩЕЙ СТРОКИ ====================
+function highlightCurrentLine() {
+  // Простая реализация: добавляем класс при фокусе
+  if (document.activeElement === editor) {
+    editor.classList.add('current-line');
+  } else {
+    editor.classList.remove('current-line');
+  }
 }
 
 // ==================== ТАБЛИЧНЫЙ РЕДАКТОР ====================
@@ -2263,15 +2058,26 @@ function removeTableColumn() {
 }
 
 function insertTable() {
+  // Автоматическое форматирование таблицы (выравнивание по ширине)
+  const maxLengths = tableData[0].map((_, colIndex) => 
+    Math.max(...tableData.map(row => row[colIndex].length))
+  );
+  
   let md = '';
   
-  // Заголовки
-  md += '| ' + tableData[0].map(c => c || 'Заголовок').join(' | ') + ' |\n';
+  // Заголовки с выравниванием
+  md += '| ' + tableData[0].map((cell, i) => 
+    cell.padEnd(maxLengths[i])
+  ).join(' | ') + ' |\n';
+  
   // Разделитель
-  md += '| ' + tableData[0].map(() => '---').join(' | ') + ' |\n';
+  md += '| ' + maxLengths.map(len => '-'.repeat(len)).join(' | ') + ' |\n';
+  
   // Остальные строки
   for (let i = 1; i < tableData.length; i++) {
-    md += '| ' + tableData[i].map(c => c || ' ').join(' | ') + ' |\n';
+    md += '| ' + tableData[i].map((cell, j) => 
+      cell.padEnd(maxLengths[j])
+    ).join(' | ') + ' |\n';
   }
   
   // Вставляем таблицу в редактор
@@ -2284,41 +2090,12 @@ function insertTable() {
   document.body.style.overflow = '';
   
   updatePreview();
-  showNotification('Таблица успешно вставлена', 'success');
-}
-
-// ==================== АВТОСОХРАНЕНИЕ И СТАТИСТИКА ====================
-function loadDraft() {
-  const savedDraft = localStorage.getItem('markdownDraft');
-  if (savedDraft && savedDraft !== '# Новый документ\n\nНачните писать здесь...') {
-    editor.value = savedDraft;
-    showNotification('Черновик восстановлен', 'success', 3000);
-  }
-}
-
-function updateStats() {
-  const text = editor.value;
-  charCountEl.textContent = text.length;
-  
-  // Подсчет слов (разделение по пробелам, знакам препинания и переносам строк)
-  const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-  wordCountEl.textContent = words.length;
-  
-  // Обновление общей статистики
-  totalChars += text.length - totalChars;
-  localStorage.setItem('totalChars', totalChars.toString());
-  document.getElementById('statChars').textContent = totalChars;
+  showNotification('Таблица успешно вставлена и отформатирована', 'success');
 }
 
 // ==================== ПРЕДПРОСМОТР ====================
 function updatePreview() {
   let text = editor.value;
-  
-  // Заменяем ключи изображений из кэша на реальные base64
-  text = text.replace(/!\[([^\]]*)\]\((img_[^)]+)\)/g, (match, alt, key) => {
-    const base64 = imageCache.get(key);
-    return base64 ? `![${alt}](${base64})` : match;
-  });
   
   try {
     // Парсим Markdown
@@ -2365,6 +2142,11 @@ function updatePreview() {
   
   // Применение размера шрифта
   preview.style.fontSize = fontSizeSelect.value + 'px';
+  
+  // Обновление статистики
+  totalChars = text.length;
+  localStorage.setItem('totalChars', totalChars.toString());
+  document.getElementById('statChars').textContent = totalChars;
 }
 
 // ==================== РЕНДЕР DOT ДИАГРАММ ====================
@@ -2455,15 +2237,6 @@ async function downloadPDF() {
     const decorativeElements = clone.querySelectorAll('.dot-diagram-title, .dot-note, .status-dot, .footer-slogan');
     decorativeElements.forEach(el => el.remove());
     
-    // Обработка изображений в кэше для PDF
-    const images = clone.querySelectorAll('img');
-    for (const img of images) {
-      if (img.src.startsWith('img_')) {
-        const base64 = imageCache.get(img.src);
-        if (base64) img.src = base64;
-      }
-    }
-    
     // Создаем временный контейнер для экспорта
     const tempContainer = document.createElement('div');
     tempContainer.style.position = 'absolute';
@@ -2529,9 +2302,10 @@ async function downloadPDF() {
 }
 
 // ==================== УВЕДОМЛЕНИЯ ====================
-function showNotification(message, type = 'success', duration = 4000) {
+function showNotification(message, type = 'success', duration = 5000) {
   const notificationText = document.getElementById('notificationText');
   const icon = notification.querySelector('i');
+  const progressBar = notification.querySelector('.notification-progress');
   
   notificationText.textContent = message;
   notification.className = '';
@@ -2552,6 +2326,14 @@ function showNotification(message, type = 'success', duration = 4000) {
       notification.classList.add('warning');
       icon.className = 'fas fa-exclamation-triangle warning';
       break;
+  }
+  
+  // Сброс анимации прогресс-бара
+  if (progressBar) {
+    progressBar.style.animation = 'none';
+    setTimeout(() => {
+      progressBar.style.animation = 'progress 5s linear forwards';
+    }, 10);
   }
   
   // Автоматическое скрытие
