@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Markdown2PDF Pro</title>
+<title>Markdown2PDF</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
@@ -36,6 +37,7 @@
 --notification-shadow: 0 4px 12px rgba(0,0,0,0.25);
 --panel-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 --modal-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+--top-bar-height: 4px;
 }
 :root[data-theme="light"] {
 --bg-primary: #f8f9fa;
@@ -76,6 +78,13 @@ display: flex;
 flex-direction: column;
 transition: background-color 0.3s ease, color 0.3s ease;
 line-height: 1.5;
+}
+/* Верхняя синяя полоска */
+.top-bar {
+height: var(--top-bar-height);
+background: linear-gradient(90deg, var(--accent-color), #6cb4ee);
+width: 100%;
+flex-shrink: 0;
 }
 .modal-backdrop {
 position: fixed;
@@ -1034,6 +1043,10 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 </style>
 </head>
 <body>
+<!-- Верхняя синяя полоска -->
+<div class="top-bar"></div>
+
+<!-- Modals -->
 <div class="modal-backdrop" id="modalInfo">
 <div class="modal-content">
 <div class="modal-header">
@@ -1043,7 +1056,7 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 <button class="close-modal">&times;</button>
 </div>
 <div class="modal-body">
-<h2><i class="fas fa-file-export"></i> Markdown to PDF Pro</h2>
+<h2><i class="fas fa-file-export"></i> Markdown to PDF</h2>
 <p>Профессиональный инструмент для преобразования Markdown в PDF с расширенными возможностями:</p>
 <ul>
 <li>Полная поддержка Markdown форматирования</li>
@@ -1110,6 +1123,7 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 </div>
 </div>
 </div>
+<!-- Table Modal -->
 <div class="modal-backdrop" id="tableModal">
 <div class="modal-content">
 <div class="modal-header">
@@ -1147,9 +1161,10 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 </div>
 </div>
 </div>
+<!-- Header -->
 <div class="header">
 <div class="header-title">
-<i class="fas fa-file-pdf"></i> Markdown2PDF Pro
+<i class="fas fa-file-pdf"></i> Markdown2PDF
 </div>
 <div class="header-buttons">
 <button class="header-btn" data-modal="modalInfo">
@@ -1163,6 +1178,7 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 </div>
 </div>
 </div>
+<!-- Main Content -->
 <div class="main-container">
 <div class="content-area">
 <div class="panel">
@@ -1218,6 +1234,7 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 </button>
 </div>
 </div>
+<!-- Панель поиска -->
 <div class="search-container" id="searchContainer">
 <div style="display: flex; align-items: center; gap: 1rem; width: 100%;">
 <div class="search-box">
@@ -1234,7 +1251,7 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 </div>
 <div class="editor-container">
 <div class="editor-wrapper">
-<textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш документ в формате Markdown..."># Добро пожаловать в Markdown2PDF Pro!
+<textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш документ в формате Markdown..."># Добро пожаловать в Markdown2PDF!
 Это улучшенная версия приложения для конвертации Markdown в PDF. Все функции работают в вашем браузере без отправки данных на сервер.
 ## 🔥 Новые возможности
 - **Светлая/тёмная тема** - переключайтесь в шапке
@@ -1330,12 +1347,14 @@ Process3 -> End;
 </div>
 </div>
 </div>
+<!-- Notification -->
 <div id="notification">
 <i class="fas fa-check-circle success"></i>
 <span id="notificationText">Документ успешно сохранен!</span>
 <button onclick="closeNotification()">&times;</button>
 <div class="notification-progress"></div>
 </div>
+<!-- PDF Loader -->
 <div class="pdf-loader">
 <div class="loader-content">
 <div class="loader-spinner">
@@ -1345,11 +1364,16 @@ Process3 -> End;
 <div class="loader-subtext">Пожалуйста, подождите...</div>
 </div>
 </div>
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/lib/marked.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 <script>
-let graphvizInstance = null;
-let isLocalFile = window.location.protocol === 'file:';
+// ==================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ====================
+let viz = null;
 let currentSearchIndex = -1;
 let searchResults = [];
 let themeToggleBtn = null;
@@ -1372,8 +1396,9 @@ let toggleSearchBtn = null;
 let clearEditorBtn = null;
 let downloadCount = 0;
 let totalChars = 0;
-
+// ==================== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ====================
 document.addEventListener('DOMContentLoaded', async () => {
+// Инициализация элементов DOM
 editor = document.getElementById('markdownEditor');
 preview = document.getElementById('previewContent');
 downloadBtn = document.getElementById('downloadPdf');
@@ -1392,28 +1417,36 @@ searchStatusEl = document.getElementById('searchStatus');
 toggleSearchBtn = document.getElementById('toggleSearch');
 clearEditorBtn = document.getElementById('clearEditor');
 themeToggleBtn = document.getElementById('themeToggle');
-
+// Загрузка статистики
 downloadCount = parseInt(localStorage.getItem('downloadCount') || '0');
 totalChars = parseInt(localStorage.getItem('totalChars') || '0');
 document.getElementById('statDownloads').textContent = downloadCount;
 document.getElementById('statChars').textContent = totalChars;
-
-loadTheme();
-updatePreview();
-await loadKaTeX();
-if (!isLocalFile) {
-loadGraphviz();
+// Инициализация Viz.js
+try {
+viz = new Viz();
+console.log('✓ Viz.js успешно инициализирован');
+} catch (e) {
+console.warn('⚠ Ошибка инициализации Viz.js:', e);
 }
+// Загрузка темы
+loadTheme();
+// Обновление предпросмотра
+updatePreview();
+// Загрузка KaTeX
+await loadKaTeX();
+// Установка обработчиков событий
 setupEventListeners();
-
+// Показать приветственное уведомление
 setTimeout(() => {
-showNotification('Добро пожаловать в Markdown2PDF Pro! Нажмите Ctrl+F для поиска по документу.', 'success', 6000);
+showNotification('Добро пожаловать в Markdown2PDF! Нажмите Ctrl+F для поиска по документу.', 'success', 6000);
 }, 1000);
 });
-
+// ==================== ЗАГРУЗКА ТЕМЫ ====================
 function loadTheme() {
 const savedTheme = localStorage.getItem('theme') || 'dark';
 document.documentElement.setAttribute('data-theme', savedTheme);
+// Обновление иконки переключателя темы
 const icon = themeToggleBtn.querySelector('i');
 if (savedTheme === 'dark') {
 icon.className = 'fas fa-moon';
@@ -1423,12 +1456,13 @@ icon.className = 'fas fa-sun';
 icon.title = 'Переключить на темную тему';
 }
 }
-
+// ==================== ПЕРЕКЛЮЧЕНИЕ ТЕМЫ ====================
 themeToggleBtn?.addEventListener('click', () => {
 const currentTheme = document.documentElement.getAttribute('data-theme');
 const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 document.documentElement.setAttribute('data-theme', newTheme);
 localStorage.setItem('theme', newTheme);
+// Обновление иконки
 const icon = themeToggleBtn.querySelector('i');
 if (newTheme === 'dark') {
 icon.className = 'fas fa-moon';
@@ -1439,9 +1473,10 @@ icon.className = 'fas fa-sun';
 icon.title = 'Переключить на темную тему';
 showNotification('Светлая тема активирована', 'success', 2000);
 }
+// Обновление предпросмотра для применения новых стилей
 updatePreview();
 });
-
+// ==================== ЗАГРУЗКА KATEX ====================
 async function loadKaTeX() {
 return new Promise((resolve, reject) => {
 if (window.katex && window.renderMathInElement) {
@@ -1461,37 +1496,18 @@ script.onerror = reject;
 document.head.appendChild(script);
 });
 }
-
-async function loadGraphviz() {
-if (isLocalFile) return null;
-try {
-await new Promise((resolve, reject) => {
-const script = document.createElement('script');
-script.src = 'https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2.15.0/dist/graphviz.umd.min.js';
-script.onload = resolve;
-script.onerror = reject;
-document.head.appendChild(script);
-});
-if (window.Graphviz) {
-graphvizInstance = await window.Graphviz.load();
-console.log('Graphviz успешно загружен');
-updatePreview();
-}
-return graphvizInstance;
-} catch (error) {
-console.warn('Не удалось загрузить Graphviz:', error);
-return null;
-}
-}
-
+// ==================== НАСТРОЙКА ОБРАБОТЧИКОВ СОБЫТИЙ ====================
 function setupEventListeners() {
+// Обновление предпросмотра при вводе
 editor.addEventListener('input', updatePreview);
+// Обработчики кнопок форматирования
 document.querySelectorAll('.tool-btn[data-format]').forEach(btn => {
 btn.addEventListener('click', () => {
 const format = btn.dataset.format;
 applyFormat(format);
 });
 });
+// Выпадающее меню заголовков
 insertHeadingBtn.addEventListener('click', (e) => {
 e.stopPropagation();
 const rect = insertHeadingBtn.getBoundingClientRect();
@@ -1499,16 +1515,19 @@ headingMenu.style.left = `${rect.left}px`;
 headingMenu.style.top = `${rect.bottom + 5}px`;
 headingMenu.classList.toggle('active');
 });
+// Закрытие выпадающего меню при клике вне его
 document.addEventListener('click', (e) => {
 if (!insertHeadingBtn.contains(e.target) && !headingMenu.contains(e.target)) {
 headingMenu.classList.remove('active');
 }
 });
+// Табличный редактор
 insertTableBtn.addEventListener('click', () => {
 initTableEditor();
 document.getElementById('tableModal').classList.add('active');
 document.body.style.overflow = 'hidden';
 });
+// Закрытие модальных окон
 document.querySelectorAll('.close-modal, .modal-backdrop').forEach(el => {
 el.addEventListener('click', (e) => {
 if (e.target.classList.contains('modal-backdrop') || e.target.classList.contains('close-modal')) {
@@ -1517,20 +1536,26 @@ document.body.style.overflow = '';
 }
 });
 });
+// Управление таблицей
 document.getElementById('addRowBtn').addEventListener('click', addTableRow);
 document.getElementById('addColBtn').addEventListener('click', addTableColumn);
 document.getElementById('removeRowBtn').addEventListener('click', removeTableRow);
 document.getElementById('removeColBtn').addEventListener('click', removeTableColumn);
 document.getElementById('insertTableConfirm').addEventListener('click', insertTable);
+// Экспорт в PDF
 downloadBtn.addEventListener('click', downloadPDF);
+// Изменение имени документа с очисткой недопустимых символов
 documentNameInput.addEventListener('input', () => {
+// Очистка недопустимых символов для имени файла
 let value = documentNameInput.value;
 value = value.replace(/[<>:"/\\|?*]/g, '');
 documentNameInput.value = value;
 });
+// Изменение размера шрифта
 fontSizeSelect.addEventListener('change', () => {
 preview.style.fontSize = fontSizeSelect.value + 'px';
 });
+// Модальные окна из шапки
 document.querySelectorAll('[data-modal]').forEach(btn => {
 btn.addEventListener('click', () => {
 const modalId = btn.dataset.modal;
@@ -1538,6 +1563,7 @@ document.getElementById(modalId).classList.add('active');
 document.body.style.overflow = 'hidden';
 });
 });
+// Поиск
 toggleSearchBtn.addEventListener('click', toggleSearchPanel);
 closeSearchBtn.addEventListener('click', closeSearchPanel);
 searchNextBtn.addEventListener('click', findNext);
@@ -1548,6 +1574,7 @@ e.preventDefault();
 findNext();
 }
 });
+// Горячая клавиша Ctrl+F для поиска
 document.addEventListener('keydown', (e) => {
 if (e.ctrlKey && e.key === 'f') {
 e.preventDefault();
@@ -1557,6 +1584,7 @@ searchInput.focus();
 searchInput.select();
 }
 }
+// Закрытие модальных окон и панели поиска по ESC
 if (e.key === 'Escape') {
 closeSearchPanel();
 document.querySelectorAll('.modal-backdrop.active').forEach(modal => {
@@ -1566,6 +1594,7 @@ document.body.style.overflow = '';
 headingMenu.classList.remove('active');
 }
 });
+// Очистка редактора
 clearEditorBtn.addEventListener('click', () => {
 if (confirm('Вы уверены, что хотите очистить весь документ? Это действие нельзя отменить.')) {
 editor.value = '# Новый документ\nНачните писать здесь...';
@@ -1573,6 +1602,7 @@ updatePreview();
 showNotification('Документ успешно очищен', 'success');
 }
 });
+// Подсветка текущей строки в редакторе
 editor.addEventListener('scroll', highlightCurrentLine);
 editor.addEventListener('mousemove', highlightCurrentLine);
 editor.addEventListener('focus', highlightCurrentLine);
@@ -1580,7 +1610,7 @@ editor.addEventListener('blur', () => {
 editor.classList.remove('current-line');
 });
 }
-
+// ==================== ФУНКЦИИ РЕДАКТОРА ====================
 function applyFormat(format) {
 const startPos = editor.selectionStart;
 const endPos = editor.selectionEnd;
@@ -1621,7 +1651,6 @@ editor.selectionEnd = startPos + newText.length;
 editor.focus();
 updatePreview();
 }
-
 function insertTextAtCursor(text, wrapBefore = '', wrapAfter = '') {
 const startPos = editor.selectionStart;
 const endPos = editor.selectionEnd;
@@ -1638,7 +1667,7 @@ editor.selectionStart = editor.selectionEnd = startPos + wrapBefore.length + tex
 editor.focus();
 updatePreview();
 }
-
+// ==================== ПОИСК ====================
 function toggleSearchPanel() {
 if (searchContainer.style.display === 'none' || searchContainer.style.display === '') {
 searchContainer.style.display = 'block';
@@ -1649,7 +1678,6 @@ performSearch();
 closeSearchPanel();
 }
 }
-
 function closeSearchPanel() {
 searchContainer.style.display = 'none';
 searchInput.value = '';
@@ -1658,7 +1686,6 @@ currentSearchIndex = -1;
 searchResults = [];
 editor.focus();
 }
-
 function performSearch() {
 const searchTerm = searchInput.value.trim();
 if (!searchTerm) {
@@ -1680,7 +1707,6 @@ if (searchResults.length > 0) {
 highlightSearchResult();
 }
 }
-
 function findNext() {
 if (searchResults.length === 0) {
 performSearch();
@@ -1690,7 +1716,6 @@ currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
 updateSearchStatus();
 highlightSearchResult();
 }
-
 function updateSearchStatus() {
 if (searchResults.length === 0) {
 searchStatusEl.textContent = '0 из 0';
@@ -1698,7 +1723,6 @@ searchStatusEl.textContent = '0 из 0';
 searchStatusEl.textContent = `${currentSearchIndex + 1} из ${searchResults.length}`;
 }
 }
-
 function highlightSearchResult() {
 if (currentSearchIndex === -1 || searchResults.length === 0) return;
 const pos = searchResults[currentSearchIndex];
@@ -1706,20 +1730,20 @@ const searchTerm = searchInput.value.trim();
 editor.focus();
 editor.setSelectionRange(pos, pos + searchTerm.length);
 }
-
+// ==================== ПОДСВЕТКА ТЕКУЩЕЙ СТРОКИ ====================
 function highlightCurrentLine() {
+// Простая реализация: добавляем класс при фокусе
 if (document.activeElement === editor) {
 editor.classList.add('current-line');
 } else {
 editor.classList.remove('current-line');
 }
 }
-
+// ==================== ТАБЛИЧНЫЙ РЕДАКТОР ====================
 let tableData = [
 ['', '', ''],
 ['', '', '']
 ];
-
 function initTableEditor() {
 tableData = [
 ['', '', ''],
@@ -1727,7 +1751,6 @@ tableData = [
 ];
 renderTableEditor();
 }
-
 function renderTableEditor() {
 const tableGrid = document.getElementById('tableGrid');
 tableGrid.innerHTML = '';
@@ -1748,18 +1771,15 @@ tableGrid.appendChild(input);
 });
 });
 }
-
 function addTableRow() {
 const newRow = Array(tableData[0].length).fill('');
 tableData.push(newRow);
 renderTableEditor();
 }
-
 function addTableColumn() {
 tableData.forEach(row => row.push(''));
 renderTableEditor();
 }
-
 function removeTableRow() {
 if (tableData.length > 1) {
 tableData.pop();
@@ -1768,7 +1788,6 @@ renderTableEditor();
 showNotification('Нельзя удалить последнюю строку', 'warning');
 }
 }
-
 function removeTableColumn() {
 if (tableData[0].length > 1) {
 tableData.forEach(row => row.pop());
@@ -1777,45 +1796,59 @@ renderTableEditor();
 showNotification('Нельзя удалить последний столбец', 'warning');
 }
 }
-
 function insertTable() {
+// Автоматическое форматирование таблицы (выравнивание по ширине)
 const maxLengths = tableData[0].map((_, colIndex) =>
 Math.max(...tableData.map(row => row[colIndex].length))
 );
 let md = '';
+// Заголовки с выравниванием
 md += '| ' + tableData[0].map((cell, i) =>
 cell.padEnd(maxLengths[i])
 ).join(' | ') + ' |\n';
+// Разделитель
 md += '| ' + maxLengths.map(len => '-'.repeat(len)).join(' | ') + ' |\n';
+// Остальные строки
 for (let i = 1; i < tableData.length; i++) {
 md += '| ' + tableData[i].map((cell, j) =>
 cell.padEnd(maxLengths[j])
 ).join(' | ') + ' |\n';
 }
+// Вставляем таблицу в редактор
 const startPos = editor.selectionStart;
 editor.value = editor.value.substring(0, startPos) + '\n' + md + '\n' + editor.value.substring(startPos);
 editor.focus();
+// Закрываем модальное окно
 document.getElementById('tableModal').classList.remove('active');
 document.body.style.overflow = '';
 updatePreview();
 showNotification('Таблица успешно вставлена и отформатирована', 'success');
 }
-
+// ==================== ПРЕДПРОСМОТР ====================
 function updatePreview() {
 let text = editor.value;
 try {
+// Обработка DOT-диаграмм
+text = text.replace(/```dot([\s\S]*?)```/g, (_, dot) => {
+return `<div class="dot-diagram-container" data-dot="${encodeURIComponent(dot)}"></div>`;
+});
+// Обработка разрывов страниц
+text = text.replace(/---/g, '<div class="page-break"></div>');
+// Парсим Markdown
 const html = marked.parse(text, {
 breaks: true,
 gfm: true,
 mangle: false,
 headerIds: false
 });
+// Очищаем HTML
 const clean = DOMPurify.sanitize(html, {
 USE_PROFILES: { html: true },
 ADD_TAGS: ['svg', 'g', 'path', 'circle', 'rect', 'polygon', 'polyline', 'line', 'ellipse', 'text', 'image'],
 ADD_ATTR: ['d', 'x', 'y', 'width', 'height', 'r', 'cx', 'cy', 'rx', 'ry', 'points', 'x1', 'y1', 'x2', 'y2', 'transform', 'fill', 'stroke', 'stroke-width', 'viewBox', 'xmlns', 'style', 'class', 'href', 'preserveAspectRatio']
 });
 preview.innerHTML = clean;
+// Рендер математики KaTeX
 if (window.renderMathInElement) {
 renderMathInElement(preview, {
 delimiters: [
@@ -1829,6 +1862,7 @@ errorColor: '#cc0000',
 strict: false
 });
 }
+// Рендер DOT диаграмм
 renderDotDiagrams();
 } catch (e) {
 console.error('Ошибка парсинга Markdown:', e);
@@ -1836,28 +1870,33 @@ preview.innerHTML = `<p style="color: var(--error-color); padding: 20px; backgro
 <strong>Ошибка парсинга Markdown:</strong> ${e.message}
 </p>`;
 }
+// Применение размера шрифта
 preview.style.fontSize = fontSizeSelect.value + 'px';
+// Обновление статистики
 totalChars = text.length;
 localStorage.setItem('totalChars', totalChars.toString());
 document.getElementById('statChars').textContent = totalChars;
 }
-
+// ==================== РЕНДЕР DOT ДИАГРАММ ====================
 async function renderDotDiagrams() {
 const containers = preview.querySelectorAll('.dot-diagram-container');
 for (const container of containers) {
 if (container.hasAttribute('data-rendered')) continue;
-const dotCode = container.textContent.trim();
+const dotCode = decodeURIComponent(container.dataset.dot);
 if (!dotCode) continue;
 try {
-if (graphvizInstance && !isLocalFile) {
-const svg = await graphvizInstance.layout(dotCode, 'svg', 'dot');
-container.innerHTML = svg;
+if (viz) {
+const svg = await viz.renderSVGElement(dotCode);
+container.innerHTML = '';
+svg.style.maxWidth = '100%';
+svg.style.height = 'auto';
+svg.style.display = 'block';
+svg.style.margin = '0 auto';
+container.appendChild(svg);
 container.setAttribute('data-rendered', 'true');
 container.style.background = 'white';
 container.style.padding = '0';
 container.style.border = 'none';
-container.querySelector('svg').style.maxWidth = '100%';
-container.querySelector('svg').style.height = 'auto';
 } else {
 container.innerHTML = `
 <div class="dot-diagram-placeholder">
@@ -1866,8 +1905,7 @@ container.innerHTML = `
 </div>
 <div class="dot-code">${escapeHtml(dotCode)}</div>
 <div class="dot-note">
-<strong>💡 Примечание:</strong> Для визуализации диаграмм запустите приложение на веб-сервере (например, GitHub Pages).
-При локальном открытии файлов диаграммы отображаются в виде кода.
+<strong>💡 Примечание:</strong> Ошибка инициализации Viz.js. Попробуйте обновить страницу.
 </div>
 </div>
 `;
@@ -1885,7 +1923,6 @@ container.setAttribute('data-rendered', 'true');
 }
 }
 }
-
 function escapeHtml(unsafe) {
 return unsafe
 .replace(/&/g, "&amp;")
@@ -1894,18 +1931,20 @@ return unsafe
 .replace(/"/g, "&quot;")
 .replace(/'/g, "&#039;");
 }
-
+// ==================== ЭКСПОРТ В PDF ====================
 async function downloadPDF() {
 const filename = (documentNameInput.value.trim() || 'document').replace(/[<>:"/\\|?*]/g, '');
+// Проверка на пустой документ
 if (!editor.value.trim()) {
 showNotification('Нельзя экспортировать пустой документ', 'error');
 return;
 }
 pdfLoader.classList.add('active');
 try {
+// Создаем клон предпросмотра для экспорта
 const clone = preview.cloneNode(true);
 clone.id = '';
-clone.style.width = '595pt';
+clone.style.width = '595pt'; // Ширина A4 в пунктах
 clone.style.padding = '40pt 30pt';
 clone.style.margin = '0';
 clone.style.boxSizing = 'border-box';
@@ -1913,14 +1952,17 @@ clone.style.fontSize = `${fontSizeSelect.value}px`;
 clone.style.color = '#1a1f2b';
 clone.style.background = 'white';
 clone.style.boxShadow = 'none';
+// Убираем декоративные элементы для печати
 const decorativeElements = clone.querySelectorAll('.dot-diagram-title, .dot-note, .status-dot, .footer-slogan');
 decorativeElements.forEach(el => el.remove());
+// Создаем временный контейнер для экспорта
 const tempContainer = document.createElement('div');
 tempContainer.style.position = 'absolute';
 tempContainer.style.left = '-9999px';
 tempContainer.style.top = '0';
 tempContainer.appendChild(clone);
 document.body.appendChild(tempContainer);
+// Настройки экспорта
 const options = {
 margin: [25, 20, 25, 20],
 filename: `${filename}.pdf`,
@@ -1931,6 +1973,7 @@ logging: false,
 backgroundColor: '#ffffff',
 allowTaint: true,
 onclone: function(clonedDoc) {
+// Убеждаемся, что все элементы правильно отображаются
 const elements = clonedDoc.querySelectorAll('.dot-diagram-container, .katex-display, img, pre, table, blockquote');
 elements.forEach(el => {
 el.style.pageBreakInside = 'avoid';
@@ -1948,7 +1991,9 @@ mode: ['avoid-all', 'css', 'legacy'],
 avoid: ['img', 'svg', '.katex-display', '.dot-diagram-container', 'pre', 'table', 'blockquote']
 }
 };
+// Экспортируем в PDF
 await html2pdf().set(options).from(clone).save();
+// Обновление статистики
 downloadCount++;
 localStorage.setItem('downloadCount', downloadCount.toString());
 document.getElementById('statDownloads').textContent = downloadCount;
@@ -1957,6 +2002,7 @@ showNotification(`Документ "${filename}.pdf" успешно сохран
 console.error('Ошибка экспорта PDF:', error);
 showNotification(`Ошибка экспорта: ${error.message || 'Неизвестная ошибка'}`, 'error');
 } finally {
+// Очистка временных элементов
 const tempContainers = document.querySelectorAll('div[style*="position: absolute"][style*="left: -9999px"]');
 tempContainers.forEach(container => {
 if (container.parentNode === document.body) {
@@ -1966,7 +2012,7 @@ document.body.removeChild(container);
 pdfLoader.classList.remove('active');
 }
 }
-
+// ==================== УВЕДОМЛЕНИЯ ====================
 function showNotification(message, type = 'success', duration = 5000) {
 const notificationText = document.getElementById('notificationText');
 const icon = notification.querySelector('i');
@@ -1990,30 +2036,30 @@ notification.classList.add('warning');
 icon.className = 'fas fa-exclamation-triangle warning';
 break;
 }
+// Сброс анимации прогресс-бара
 if (progressBar) {
 progressBar.style.animation = 'none';
 setTimeout(() => {
 progressBar.style.animation = 'progress 5s linear forwards';
 }, 10);
 }
+// Автоматическое скрытие
 if (duration > 0) {
 setTimeout(() => {
 notification.classList.remove('show');
 }, duration);
 }
 }
-
 function closeNotification() {
 notification.classList.remove('show');
 }
-
+// ==================== ОБРАБОТКА ОШИБОК ====================
 window.addEventListener('error', (e) => {
 console.error('Необработанная ошибка:', e.error);
 if (e.error && e.error.message && !e.error.message.includes('ResizeObserver')) {
 showNotification(`Ошибка: ${e.error.message}`, 'error');
 }
 });
-
 window.addEventListener('unhandledrejection', (e) => {
 console.error('Необработанное промис-исключение:', e.reason);
 if (e.reason && e.reason.message) {
