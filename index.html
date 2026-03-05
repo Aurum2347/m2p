@@ -37,7 +37,6 @@
 --notification-shadow: 0 4px 12px rgba(0,0,0,0.25);
 --panel-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 --modal-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
---top-bar-height: 4px;
 }
 :root[data-theme="light"] {
 --bg-primary: #f8f9fa;
@@ -78,13 +77,6 @@ display: flex;
 flex-direction: column;
 transition: background-color 0.3s ease, color 0.3s ease;
 line-height: 1.5;
-}
-/* Верхняя синяя полоска */
-.top-bar {
-height: var(--top-bar-height);
-background: linear-gradient(90deg, var(--accent-color), #6cb4ee);
-width: 100%;
-flex-shrink: 0;
 }
 .modal-backdrop {
 position: fixed;
@@ -519,16 +511,6 @@ min-width: 320px;
 max-width: 820px;
 transition: all 0.3s ease;
 position: relative;
-}
-.preview-content::before {
-content: "";
-position: absolute;
-top: 0;
-left: 0;
-right: 0;
-height: 4px;
-background: linear-gradient(90deg, var(--accent-color), #6cb4ee);
-border-radius: 12px 12px 0 0;
 }
 .preview-content h1 {
 font-size: 2.1em;
@@ -1043,9 +1025,6 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 </style>
 </head>
 <body>
-<!-- Верхняя синяя полоска -->
-<div class="top-bar"></div>
-
 <!-- Modals -->
 <div class="modal-backdrop" id="modalInfo">
 <div class="modal-content">
