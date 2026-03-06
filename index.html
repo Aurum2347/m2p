@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Markdown2PDF</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+<link rel="icon" type="image/svg+xml" href="image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
@@ -1054,7 +1054,7 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 </ul>
 <blockquote>
 <p>Используйте <code>```dot ... ```</code> для создания диаграмм Graphviz.</p>
-<p>Нажмите <code>Ctrl+V</code> для вставки изображения из буфера обмена.</p>
+<p>Нажмите <code>Ctrl+V</code> для вставки изображений из буфера обмена.</p>
 </blockquote>
 <h2><i class="fas fa-chart-line"></i> Статистика использования</h2>
 <div style="display: flex; gap: 20px; margin-top: 15px;">
@@ -1300,8 +1300,8 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 <script>
-let graphvizInstance = null;
-let isLocalFile = window.location.protocol === 'file:';
+// ==================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ====================
+let viz = null;
 let currentSearchIndex = -1;
 let searchResults = [];
 let themeToggleBtn = null;
@@ -1325,7 +1325,9 @@ let clearEditorBtn = null;
 let downloadCount = 0;
 let totalChars = 0;
 let imageCache = {};
+let imageCounter = 0;
 
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
 document.addEventListener('DOMContentLoaded', async () => {
 editor = document.getElementById('markdownEditor');
 preview = document.getElementById('previewContent');
@@ -1346,24 +1348,37 @@ toggleSearchBtn = document.getElementById('toggleSearch');
 clearEditorBtn = document.getElementById('clearEditor');
 themeToggleBtn = document.getElementById('themeToggle');
 
+// Загрузка статистики
 downloadCount = parseInt(localStorage.getItem('downloadCount') || '0');
 totalChars = parseInt(localStorage.getItem('totalChars') || '0');
 document.getElementById('statDownloads').textContent = downloadCount;
 document.getElementById('statChars').textContent = totalChars;
 
+// Инициализация темы
 loadTheme();
-updatePreview();
-await loadKaTeX();
-if (!isLocalFile) {
-loadGraphviz();
+
+// Инициализация Viz.js для диаграмм
+try {
+viz = new Viz();
+console.log('✓ Viz.js инициализирован');
+} catch (e) {
+console.warn('⚠ Ошибка Viz.js:', e);
+showNotification('Не удалось загрузить диаграммы', 'warning', 4000);
 }
+
+// Обработчики событий
 setupEventListeners();
 
+// Первичный рендер
+updatePreview();
+
+// Приветственное уведомление
 setTimeout(() => {
 showNotification('Добро пожаловать! Используйте Ctrl+V для вставки изображений.', 'success', 6000);
 }, 1000);
 });
 
+// ==================== ТЕМЫ ====================
 function loadTheme() {
 const savedTheme = localStorage.getItem('theme') || 'dark';
 document.documentElement.setAttribute('data-theme', savedTheme);
@@ -1378,79 +1393,40 @@ icon.title = 'Переключить на темную тему';
 }
 
 themeToggleBtn?.addEventListener('click', () => {
-const currentTheme = document.documentElement.getAttribute('data-theme');
-const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+const current = document.documentElement.getAttribute('data-theme');
+const newTheme = current === 'dark' ? 'light' : 'dark';
 document.documentElement.setAttribute('data-theme', newTheme);
 localStorage.setItem('theme', newTheme);
 const icon = themeToggleBtn.querySelector('i');
 if (newTheme === 'dark') {
 icon.className = 'fas fa-moon';
-icon.title = 'Переключить на светлую тему';
-showNotification('Темная тема активирована', 'success', 2000);
+showNotification('Тёмная тема', 'success', 2000);
 } else {
 icon.className = 'fas fa-sun';
-icon.title = 'Переключить на темную тему';
-showNotification('Светлая тема активирована', 'success', 2000);
+showNotification('Светлая тема', 'success', 2000);
 }
 updatePreview();
 });
 
-async function loadKaTeX() {
-return new Promise((resolve, reject) => {
-if (window.katex && window.renderMathInElement) {
-resolve();
-return;
-}
-const script = document.createElement('script');
-script.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
-script.onload = () => {
-const renderScript = document.createElement('script');
-renderScript.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js';
-renderScript.onload = () => resolve();
-renderScript.onerror = reject;
-document.head.appendChild(renderScript);
-};
-script.onerror = reject;
-document.head.appendChild(script);
-});
-}
-
-async function loadGraphviz() {
-if (isLocalFile) return null;
-try {
-await new Promise((resolve, reject) => {
-const script = document.createElement('script');
-script.src = 'https://cdn.jsdelivr.net/npm/@hpcc-js/wasm@2.15.0/dist/graphviz.umd.min.js';
-script.onload = resolve;
-script.onerror = reject;
-document.head.appendChild(script);
-});
-if (window.Graphviz) {
-graphvizInstance = await window.Graphviz.load();
-console.log('Graphviz успешно загружен');
-updatePreview();
-}
-return graphvizInstance;
-} catch (error) {
-console.warn('Не удалось загрузить Graphviz:', error);
-return null;
-}
-}
-
+// ==================== ОБРАБОТЧИКИ СОБЫТИЙ ====================
 function setupEventListeners() {
-editor.addEventListener('input', updatePreview);
+editor.addEventListener('input', () => {
+clearTimeout(window.previewTimer);
+window.previewTimer = setTimeout(updatePreview, 200);
+});
 editor.addEventListener('paste', handlePaste);
+
+// Кнопки форматирования
 document.querySelectorAll('.tool-btn[data-format]').forEach(btn => {
-btn.addEventListener('click', () => {
-const format = btn.dataset.format;
-applyFormat(format);
+btn.addEventListener('click', () => applyFormat(btn.dataset.format));
 });
-});
+
+// Выпадающее меню заголовков
 insertHeadingBtn.addEventListener('click', (e) => {
 e.stopPropagation();
 const rect = insertHeadingBtn.getBoundingClientRect();
-headingMenu.style.left = `${rect.left}px`;
-headingMenu.style.top = `${rect.bottom + 5}px`;
+headingMenu.style.left = rect.left + 'px';
+headingMenu.style.top = (rect.bottom + 5) + 'px';
 headingMenu.classList.toggle('active');
 });
 document.addEventListener('click', (e) => {
@@ -1458,6 +1434,8 @@ if (!insertHeadingBtn.contains(e.target) && !headingMenu.contains(e.target)) {
 headingMenu.classList.remove('active');
 }
 });
+
+// Модальные окна
 insertTableBtn.addEventListener('click', () => {
 initTableEditor();
 document.getElementById('tableModal').classList.add('active');
@@ -1471,163 +1449,144 @@ document.body.style.overflow = '';
 }
 });
 });
+
+// Управление таблицей
 document.getElementById('addRowBtn').addEventListener('click', addTableRow);
 document.getElementById('addColBtn').addEventListener('click', addTableColumn);
 document.getElementById('removeRowBtn').addEventListener('click', removeTableRow);
 document.getElementById('removeColBtn').addEventListener('click', removeTableColumn);
 document.getElementById('insertTableConfirm').addEventListener('click', insertTable);
+
+// Экспорт и настройки
 downloadBtn.addEventListener('click', downloadPDF);
-documentNameInput.addEventListener('input', () => {
-let value = documentNameInput.value;
-value = value.replace(/[<>:"/\\|?*]/g, '');
-documentNameInput.value = value;
+documentNameInput.addEventListener('input', (e) => {
+e.target.value = e.target.value.replace(/[<>:"/\\|?*]/g, '').substring(0, 50) || 'document';
 });
 fontSizeSelect.addEventListener('change', () => {
 preview.style.fontSize = fontSizeSelect.value + 'px';
 });
+
+// Модальные окна из шапки
 document.querySelectorAll('[data-modal]').forEach(btn => {
 btn.addEventListener('click', () => {
-const modalId = btn.dataset.modal;
-document.getElementById(modalId).classList.add('active');
+document.getElementById(btn.dataset.modal).classList.add('active');
 document.body.style.overflow = 'hidden';
 });
 });
+
+// Поиск
 toggleSearchBtn.addEventListener('click', toggleSearchPanel);
 closeSearchBtn.addEventListener('click', closeSearchPanel);
 searchNextBtn.addEventListener('click', findNext);
 searchInput.addEventListener('input', performSearch);
 searchInput.addEventListener('keydown', (e) => {
-if (e.key === 'Enter') {
-e.preventDefault();
-findNext();
-}
+if (e.key === 'Enter') { e.preventDefault(); findNext(); }
 });
+
+// Горячие клавиши
 document.addEventListener('keydown', (e) => {
-if (e.ctrlKey && e.key === 'f') {
-e.preventDefault();
-toggleSearchPanel();
-if (searchContainer.style.display !== 'none') {
-searchInput.focus();
-searchInput.select();
-}
-}
+if (e.ctrlKey && e.key === 'f') { e.preventDefault(); toggleSearchPanel(); searchInput.focus(); }
 if (e.key === 'Escape') {
 closeSearchPanel();
-document.querySelectorAll('.modal-backdrop.active').forEach(modal => {
-modal.classList.remove('active');
-});
+document.querySelectorAll('.modal-backdrop.active').forEach(m => m.classList.remove('active'));
 document.body.style.overflow = '';
 headingMenu.classList.remove('active');
 }
+if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); downloadPDF(); }
+if ((e.ctrlKey || e.metaKey) && e.key === 'b') { e.preventDefault(); applyFormat('bold'); }
+if ((e.ctrlKey || e.metaKey) && e.key === 'i') { e.preventDefault(); applyFormat('italic'); }
 });
+
+// Очистка редактора
 clearEditorBtn.addEventListener('click', () => {
-if (confirm('Вы уверены, что хотите очистить весь документ? Это действие нельзя отменить.')) {
+if (confirm('Очистить документ?')) {
 editor.value = '# Новый документ\nНачните писать здесь...';
 updatePreview();
-showNotification('Документ успешно очищен', 'success');
+showNotification('Документ очищен', 'success');
 }
 });
-editor.addEventListener('scroll', highlightCurrentLine);
-editor.addEventListener('mousemove', highlightCurrentLine);
-editor.addEventListener('focus', highlightCurrentLine);
-editor.addEventListener('blur', () => {
-editor.classList.remove('current-line');
-});
+
+// Подсветка строки
+editor.addEventListener('focus', () => editor.classList.add('current-line'));
+editor.addEventListener('blur', () => editor.classList.remove('current-line'));
 }
 
+// ==================== ВСТАВКА ИЗОБРАЖЕНИЙ ====================
 function handlePaste(e) {
-const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+if (!items) return;
+
 for (let item of items) {
-if (item.type.indexOf('image') !== -1) {
+if (item.type?.indexOf('image') !== -1) {
 e.preventDefault();
 const blob = item.getAsFile();
 const reader = new FileReader();
+
 reader.onload = (event) => {
 const base64 = event.target.result;
-const imageId = 'img_' + Date.now();
+const imageId = 'img_' + (++imageCounter);
 imageCache[imageId] = base64;
-const markdown = `\n![Вставленное изображение](${base64})\n`;
-const startPos = editor.selectionStart;
-editor.value = editor.value.substring(0, startPos) + markdown + editor.value.substring(editor.selectionEnd);
-editor.selectionStart = editor.selectionEnd = startPos + markdown.length;
+
+// Вставляем короткую ссылку вместо base64
+const markdown = `\n![Вставленное изображение](session/${imageId}.png)\n`;
+const pos = editor.selectionStart;
+editor.value = editor.value.substring(0, pos) + markdown + editor.value.substring(editor.selectionEnd);
+editor.selectionStart = editor.selectionEnd = pos + markdown.length;
 editor.focus();
 updatePreview();
-showNotification('Изображение вставлено из буфера обмена', 'success', 3000);
+showNotification('Изображение вставлено', 'success', 3000);
 };
 reader.readAsDataURL(blob);
 }
 }
 }
 
-function applyFormat(format) {
-const startPos = editor.selectionStart;
-const endPos = editor.selectionEnd;
-const selectedText = editor.value.substring(startPos, endPos);
+// ==================== ФОРМАТИРОВАНИЕ ====================
+function applyFormat(type) {
+const start = editor.selectionStart, end = editor.selectionEnd;
+const selected = editor.value.substring(start, end);
 let newText = '';
-switch(format) {
-case 'bold':
-newText = `**${selectedText || 'жирный текст'}**`;
-break;
-case 'italic':
-newText = `*${selectedText || 'курсивный текст'}*`;
-break;
-case 'link':
-newText = `[${selectedText || 'текст ссылки'}](https://example.com)`;
-break;
-case 'list':
-newText = selectedText
-? selectedText.split('\n').map(line => `- ${line}`).join('\n')
-: `- Элемент списка 1\n- Элемент списка 2`;
-break;
-case 'code':
-newText = selectedText
-? `\`\`\`\n${selectedText}\n\`\`\``
-: `\`\`\`\n// Ваш код здесь\nconsole.log("Привет, мир!");\n\`\`\``;
-break;
-case 'quote':
-newText = selectedText
-? selectedText.split('\n').map(line => `> ${line}`).join('\n')
-: `> Это цитата\n> Вторая строка цитаты`;
-break;
-case 'pageBreak':
-newText = '\n---\n';
-break;
+
+switch(type) {
+case 'bold': newText = `**${selected || 'текст'}**`; break;
+case 'italic': newText = `*${selected || 'текст'}*`; break;
+case 'link': newText = `[${selected || 'текст'}](https://example.com)`; break;
+case 'list': newText = (selected ? selected.split('\n') : ['Элемент']).map(l => `- ${l}`).join('\n'); break;
+case 'code': newText = `\`\`\`\n${selected || 'код'}\n\`\`\``; break;
+case 'quote': newText = (selected ? selected.split('\n') : ['Цитата']).map(l => `> ${l}`).join('\n'); break;
+case 'pageBreak': newText = '\n---\n'; break;
 }
-editor.value = editor.value.substring(0, startPos) + newText + editor.value.substring(endPos);
-editor.selectionStart = startPos;
-editor.selectionEnd = startPos + newText.length;
+
+editor.value = editor.value.substring(0, start) + newText + editor.value.substring(end);
+editor.selectionStart = start;
+editor.selectionEnd = start + newText.length;
 editor.focus();
 updatePreview();
 }
 
-function insertTextAtCursor(text, wrapBefore = '', wrapAfter = '') {
-const startPos = editor.selectionStart;
-const endPos = editor.selectionEnd;
-const selectedText = editor.value.substring(startPos, endPos);
-editor.value = editor.value.substring(0, startPos) +
-wrapBefore + (selectedText || text) + wrapAfter +
-editor.value.substring(endPos);
-if (selectedText) {
-editor.selectionStart = startPos;
-editor.selectionEnd = endPos + wrapBefore.length + wrapAfter.length;
+function insertTextAtCursor(text, before = '', after = '') {
+const start = editor.selectionStart, end = editor.selectionEnd;
+const selected = editor.value.substring(start, end);
+editor.value = editor.value.substring(0, start) + before + (selected || text) + after + editor.value.substring(end);
+if (selected) {
+editor.selectionStart = start;
+editor.selectionEnd = end + before.length + after.length;
 } else {
-editor.selectionStart = editor.selectionEnd = startPos + wrapBefore.length + text.length;
+editor.selectionStart = editor.selectionEnd = start + before.length + text.length;
 }
 editor.focus();
 updatePreview();
 }
 
+// ==================== ПОИСК ====================
 function toggleSearchPanel() {
-if (searchContainer.style.display === 'none' || searchContainer.style.display === '') {
+if (searchContainer.style.display === 'none' || !searchContainer.style.display) {
 searchContainer.style.display = 'block';
 searchInput.focus();
 searchInput.select();
 performSearch();
-} else {
-closeSearchPanel();
+} else closeSearchPanel();
 }
-}
-
 function closeSearchPanel() {
 searchContainer.style.display = 'none';
 searchInput.value = '';
@@ -1636,164 +1595,93 @@ currentSearchIndex = -1;
 searchResults = [];
 editor.focus();
 }
-
 function performSearch() {
-const searchTerm = searchInput.value.trim();
-if (!searchTerm) {
-searchStatusEl.textContent = '0 из 0';
-currentSearchIndex = -1;
+const term = searchInput.value.trim();
+if (!term) { searchStatusEl.textContent = '0 из 0'; return; }
 searchResults = [];
-return;
-}
-const content = editor.value;
-searchResults = [];
-let index = content.indexOf(searchTerm, 0);
-while (index !== -1) {
-searchResults.push(index);
-index = content.indexOf(searchTerm, index + 1);
-}
+let idx = editor.value.indexOf(term, 0);
+while (idx !== -1) { searchResults.push(idx); idx = editor.value.indexOf(term, idx + 1); }
 currentSearchIndex = searchResults.length > 0 ? 0 : -1;
 updateSearchStatus();
-if (searchResults.length > 0) {
-highlightSearchResult();
+if (searchResults.length > 0) highlightSearchResult();
 }
-}
-
 function findNext() {
-if (searchResults.length === 0) {
-performSearch();
-return;
-}
+if (!searchResults.length) { performSearch(); return; }
 currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
 updateSearchStatus();
 highlightSearchResult();
 }
-
 function updateSearchStatus() {
-if (searchResults.length === 0) {
-searchStatusEl.textContent = '0 из 0';
-} else {
-searchStatusEl.textContent = `${currentSearchIndex + 1} из ${searchResults.length}`;
+searchStatusEl.textContent = searchResults.length ? `${currentSearchIndex + 1} из ${searchResults.length}` : '0 из 0';
 }
-}
-
 function highlightSearchResult() {
-if (currentSearchIndex === -1 || searchResults.length === 0) return;
+if (currentSearchIndex < 0 || !searchResults.length) return;
 const pos = searchResults[currentSearchIndex];
-const searchTerm = searchInput.value.trim();
 editor.focus();
-editor.setSelectionRange(pos, pos + searchTerm.length);
+editor.setSelectionRange(pos, pos + searchInput.value.trim().length);
 }
 
-function highlightCurrentLine() {
-if (document.activeElement === editor) {
-editor.classList.add('current-line');
-} else {
-editor.classList.remove('current-line');
-}
-}
-
-let tableData = [
-['', '', ''],
-['', '', '']
-];
-
+// ==================== ТАБЛИЦЫ ====================
+let tableData = [['', '', ''], ['', '', '']];
 function initTableEditor() {
-tableData = [
-['', '', ''],
-['', '', '']
-];
+tableData = [['', '', ''], ['', '', '']];
 renderTableEditor();
 }
-
 function renderTableEditor() {
-const tableGrid = document.getElementById('tableGrid');
-tableGrid.innerHTML = '';
-tableGrid.style.gridTemplateColumns = `repeat(${tableData[0].length}, 1fr)`;
-tableData.forEach((row, i) => {
-row.forEach((cell, j) => {
+const grid = document.getElementById('tableGrid');
+grid.innerHTML = '';
+grid.style.gridTemplateColumns = `repeat(${tableData[0].length}, 1fr)`;
+tableData.forEach((row, i) => row.forEach((cell, j) => {
 const input = document.createElement('input');
 input.type = 'text';
 input.className = 'table-cell';
 input.value = cell;
-input.dataset.row = i;
-input.dataset.col = j;
-input.placeholder = `Ячейка ${i+1},${j+1}`;
-input.addEventListener('input', (e) => {
-tableData[i][j] = e.target.value;
-});
-tableGrid.appendChild(input);
-});
-});
+input.dataset.row = i; input.dataset.col = j;
+input.addEventListener('input', (e) => tableData[i][j] = e.target.value);
+grid.appendChild(input);
+}));
 }
-
-function addTableRow() {
-const newRow = Array(tableData[0].length).fill('');
-tableData.push(newRow);
-renderTableEditor();
-}
-
-function addTableColumn() {
-tableData.forEach(row => row.push(''));
-renderTableEditor();
-}
-
-function removeTableRow() {
-if (tableData.length > 1) {
-tableData.pop();
-renderTableEditor();
-} else {
-showNotification('Нельзя удалить последнюю строку', 'warning');
-}
-}
-
-function removeTableColumn() {
-if (tableData[0].length > 1) {
-tableData.forEach(row => row.pop());
-renderTableEditor();
-} else {
-showNotification('Нельзя удалить последний столбец', 'warning');
-}
-}
-
+function addTableRow() { tableData.push(Array(tableData[0].length).fill('')); renderTableEditor(); }
+function addTableColumn() { tableData.forEach(row => row.push('')); renderTableEditor(); }
+function removeTableRow() { if (tableData.length > 1) { tableData.pop(); renderTableEditor(); } }
+function removeTableColumn() { if (tableData[0].length > 1) { tableData.forEach(row => row.pop()); renderTableEditor(); } }
 function insertTable() {
-const maxLengths = tableData[0].map((_, colIndex) =>
-Math.max(...tableData.map(row => row[colIndex].length))
-);
-let md = '';
-md += '| ' + tableData[0].map((cell, i) =>
-cell.padEnd(maxLengths[i])
-).join(' | ') + ' |\n';
-md += '| ' + maxLengths.map(len => '-'.repeat(len)).join(' | ') + ' |\n';
-for (let i = 1; i < tableData.length; i++) {
-md += '| ' + tableData[i].map((cell, j) =>
-cell.padEnd(maxLengths[j])
-).join(' | ') + ' |\n';
-}
-const startPos = editor.selectionStart;
-editor.value = editor.value.substring(0, startPos) + '\n' + md + '\n' + editor.value.substring(startPos);
+const maxLens = tableData[0].map((_, c) => Math.max(...tableData.map(r => r[c]?.length || 0)));
+let md = '| ' + tableData[0].map((c, i) => (c || '').padEnd(maxLens[i])).join(' | ') + ' |\n';
+md += '| ' + maxLens.map(l => '-'.repeat(l)).join(' | ') + ' |\n';
+for (let i = 1; i < tableData.length; i++) md += '| ' + tableData[i].map((c, j) => (c || '').padEnd(maxLens[j])).join(' | ') + ' |\n';
+const pos = editor.selectionStart;
+editor.value = editor.value.substring(0, pos) + '\n' + md + '\n' + editor.value.substring(pos);
 editor.focus();
 document.getElementById('tableModal').classList.remove('active');
 document.body.style.overflow = '';
 updatePreview();
-showNotification('Таблица успешно вставлена и отформатирована', 'success');
+showNotification('Таблица вставлена', 'success');
 }
 
+// ==================== ПРЕДПРОСМОТР ====================
 function updatePreview() {
 let text = editor.value;
 try {
-const html = marked.parse(text, {
-breaks: true,
-gfm: true,
-mangle: false,
-headerIds: false
+// Обработка изображений: заменяем session/imgX.png на base64
+Object.entries(imageCache).forEach(([id, base64]) => {
+text = text.replace(new RegExp(`session/${id}\\.png`, 'g'), base64);
 });
+
+// Обработка DOT-диаграмм
+text = text.replace(/```dot([\s\S]*?)```/g, (_, dot) => 
+`<div class="dot-diagram-container" data-dot="${encodeURIComponent(dot)}"></div>`);
+
+// Парсинг Markdown
+const html = marked.parse(text, { breaks: true, gfm: true, mangle: false, headerIds: false });
 const clean = DOMPurify.sanitize(html, {
 USE_PROFILES: { html: true },
 ADD_TAGS: ['svg', 'g', 'path', 'circle', 'rect', 'polygon', 'polyline', 'line', 'ellipse', 'text', 'image', 'img'],
 ADD_ATTR: ['d', 'x', 'y', 'width', 'height', 'r', 'cx', 'cy', 'rx', 'ry', 'points', 'x1', 'y1', 'x2', 'y2', 'transform', 'fill', 'stroke', 'stroke-width', 'viewBox', 'xmlns', 'style', 'class', 'href', 'preserveAspectRatio', 'src', 'alt']
 });
 preview.innerHTML = clean;
+
+// Рендеринг KaTeX
 if (window.renderMathInElement) {
 renderMathInElement(preview, {
 delimiters: [
@@ -1807,85 +1695,92 @@ errorColor: '#cc0000',
 strict: false
 });
 }
+
+// Рендеринг DOT-диаграмм
 renderDotDiagrams();
-} catch (e) {
-console.error('Ошибка парсинга Markdown:', e);
-preview.innerHTML = `<p style="color: var(--error-color); padding: 20px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 3px solid var(--error-color);">
-<strong>Ошибка парсинга Markdown:</strong> ${e.message}
-</p>`;
-}
+
+// Применение размера шрифта
 preview.style.fontSize = fontSizeSelect.value + 'px';
+
+// Обновление статистики
 totalChars = text.length;
 localStorage.setItem('totalChars', totalChars.toString());
 document.getElementById('statChars').textContent = totalChars;
+
+} catch (e) {
+console.error('Ошибка рендеринга:', e);
+preview.innerHTML = `<p style="color:var(--error-color);padding:20px;background:rgba(239,68,68,0.1);border-radius:8px;border-left:3px solid var(--error-color);"><strong>Ошибка:</strong> ${e.message}</p>`;
+}
 }
 
+// ==================== DOT-ДИАГРАММЫ ====================
 async function renderDotDiagrams() {
 const containers = preview.querySelectorAll('.dot-diagram-container');
 for (const container of containers) {
 if (container.hasAttribute('data-rendered')) continue;
-const dotCode = container.textContent.trim();
+const dotCode = decodeURIComponent(container.dataset.dot);
 if (!dotCode) continue;
+
 try {
-if (graphvizInstance && !isLocalFile) {
-const svg = await graphvizInstance.layout(dotCode, 'svg', 'dot');
-container.innerHTML = svg;
-container.setAttribute('data-rendered', 'true');
+if (viz) {
+const svg = await viz.renderSVGElement(dotCode);
+container.innerHTML = '';
+svg.style.maxWidth = '100%';
+svg.style.height = 'auto';
+svg.style.display = 'block';
+svg.style.margin = '0 auto';
+container.appendChild(svg);
 container.style.background = 'white';
 container.style.padding = '0';
 container.style.border = 'none';
-const svgEl = container.querySelector('svg');
-if (svgEl) {
-svgEl.style.maxWidth = '100%';
-svgEl.style.height = 'auto';
-}
 } else {
-container.innerHTML = `
-<div class="dot-diagram-placeholder">
-<div class="dot-diagram-title">
-<i class="fas fa-diagram-project"></i> Graphviz диаграмма
-</div>
-<div class="dot-code">${escapeHtml(dotCode)}</div>
-<div class="dot-note">
-<strong>💡 Примечание:</strong> Для визуализации диаграмм запустите приложение на веб-сервере (например, GitHub Pages).
-При локальном открытии файлов диаграммы отображаются в виде кода.
-</div>
-</div>
-`;
-container.setAttribute('data-rendered', 'true');
+container.innerHTML = `<div class="dot-diagram-placeholder"><div class="dot-diagram-title"><i class="fas fa-diagram-project"></i> Graphviz</div><div class="dot-code">${escapeHtml(dotCode)}</div><div class="dot-note"><strong>💡</strong> Ошибка инициализации Viz.js. Обновите страницу.</div></div>`;
 }
-} catch (error) {
-console.error('Ошибка рендеринга DOT диаграммы:', error);
-container.innerHTML = `
-<div style="padding: 20px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 3px solid var(--error-color);">
-<strong>Ошибка рендеринга диаграммы:</strong> ${error.message}
-<pre style="margin-top: 10px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 4px;">${escapeHtml(dotCode)}</pre>
-</div>
-`;
+container.setAttribute('data-rendered', 'true');
+} catch (err) {
+console.error('Ошибка DOT:', err);
+container.innerHTML = `<div style="padding:20px;color:var(--error-color);background:rgba(239,68,68,0.1);border-radius:8px;"><strong>Ошибка:</strong> ${err.message}<pre style="margin-top:10px;background:rgba(0,0,0,0.05);padding:10px;border-radius:4px;font-size:13px;">${escapeHtml(dotCode)}</pre></div>`;
 container.setAttribute('data-rendered', 'true');
 }
 }
 }
 
 function escapeHtml(unsafe) {
-return unsafe
-.replace(/&/g, "&amp;")
-.replace(/</g, "&lt;")
-.replace(/>/g, "&gt;")
-.replace(/"/g, "&quot;")
-.replace(/'/g, "&#039;");
+return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
+// ==================== ЭКСПОРТ В PDF ====================
 async function downloadPDF() {
-const filename = (documentNameInput.value.trim() || 'document').replace(/[<>:"/\\|?*]/g, '');
-if (!editor.value.trim()) {
-showNotification('Нельзя экспортировать пустой документ', 'error');
-return;
-}
+const filename = (documentNameInput.value.trim() || 'document').replace(/[<>:"/\\|?*]/g, '').substring(0, 50);
+if (!editor.value.trim()) { showNotification('Пустой документ', 'error'); return; }
+
 pdfLoader.classList.add('active');
+let tempContainer = null;
+
 try {
-const clone = preview.cloneNode(true);
-clone.id = '';
+// Подготовка контента для PDF
+let text = editor.value;
+
+// Заменяем короткие ссылки на base64 для экспорта
+Object.entries(imageCache).forEach(([id, base64]) => {
+text = text.replace(new RegExp(`session/${id}\\.png`, 'g'), base64);
+});
+
+// Обработка DOT-диаграмм
+text = text.replace(/```dot([\s\S]*?)```/g, (_, dot) => 
+`<div class="dot-diagram-container" data-dot="${encodeURIComponent(dot)}"></div>`);
+
+// Парсинг Markdown
+const html = marked.parse(text, { breaks: true, gfm: true, mangle: false, headerIds: false });
+const clean = DOMPurify.sanitize(html, {
+USE_PROFILES: { html: true },
+ADD_TAGS: ['svg', 'g', 'path', 'circle', 'rect', 'polygon', 'polyline', 'line', 'ellipse', 'text', 'image', 'img'],
+ADD_ATTR: ['d', 'x', 'y', 'width', 'height', 'r', 'cx', 'cy', 'rx', 'ry', 'points', 'x1', 'y1', 'x2', 'y2', 'transform', 'fill', 'stroke', 'stroke-width', 'viewBox', 'xmlns', 'style', 'class', 'href', 'preserveAspectRatio', 'src', 'alt']
+});
+
+// Создаем клон для экспорта
+const clone = document.createElement('div');
+clone.innerHTML = clean;
 clone.style.width = '595pt';
 clone.style.padding = '40pt 30pt';
 clone.style.margin = '0';
@@ -1894,16 +1789,67 @@ clone.style.fontSize = `${fontSizeSelect.value}px`;
 clone.style.color = '#1a1f2b';
 clone.style.background = 'white';
 clone.style.boxShadow = 'none';
-const decorativeElements = clone.querySelectorAll('.dot-diagram-title, .dot-note, .status-dot, .footer-slogan');
-decorativeElements.forEach(el => el.remove());
+clone.style.fontFamily = "'Montserrat', sans-serif";
+clone.style.lineHeight = '1.6';
+
+// Рендерим DOT-диаграммы для PDF
+const dotContainers = clone.querySelectorAll('.dot-diagram-container');
+for (const container of dotContainers) {
+if (container.hasAttribute('data-dot')) {
+const dotCode = decodeURIComponent(container.dataset.dot);
+try {
+if (viz) {
+const svg = await viz.renderSVGElement(dotCode);
+container.innerHTML = '';
+svg.style.maxWidth = '100%';
+svg.style.height = 'auto';
+svg.style.display = 'block';
+svg.style.margin = '0 auto';
+container.appendChild(svg);
+container.style.background = 'white';
+container.style.padding = '20px';
+container.style.border = '1px solid #ddd';
+container.style.borderRadius = '8px';
+}
+} catch (err) {
+console.error('Ошибка рендеринга DOT:', err);
+}
+}
+}
+
+// Стили для экспорта
+clone.querySelectorAll('pre, code').forEach(el => {
+el.style.fontFamily = "'Cascadia Mono', monospace";
+el.style.backgroundColor = '#f8f9fa';
+el.style.color = '#333';
+el.style.border = '1px solid #e9ecef';
+el.style.borderRadius = '4px';
+});
+
+clone.querySelectorAll('img').forEach(img => {
+img.style.maxWidth = '100%';
+img.style.height = 'auto';
+img.style.display = 'block';
+img.style.margin = '1em auto';
+});
+
+// Избегаем разрывов
+clone.querySelectorAll('p, pre, div, table, ul, ol, blockquote, h1, h2, h3, h4, h5, h6, .dot-diagram-container').forEach(el => {
+el.style.breakInside = 'avoid';
+el.style.pageBreakInside = 'avoid';
+});
+
+// Добавляем временный контейнер
 const tempContainer = document.createElement('div');
 tempContainer.style.position = 'absolute';
 tempContainer.style.left = '-9999px';
 tempContainer.style.top = '0';
 tempContainer.appendChild(clone);
 document.body.appendChild(tempContainer);
+
+// Настройки экспорта
 const options = {
-margin: [25, 20, 25, 20],
+margin: [20, 20, 20, 20],
 filename: `${filename}.pdf`,
 html2canvas: {
 scale: 2,
@@ -1911,13 +1857,9 @@ useCORS: true,
 logging: false,
 backgroundColor: '#ffffff',
 allowTaint: true,
-onclone: function(clonedDoc) {
-const elements = clonedDoc.querySelectorAll('.dot-diagram-container, .katex-display, img, pre, table, blockquote');
-elements.forEach(el => {
-el.style.pageBreakInside = 'avoid';
-el.style.breakInside = 'avoid';
-});
-}
+scrollY: 0,
+windowWidth: 800,
+windowHeight: clone.offsetHeight
 },
 jsPDF: {
 unit: 'pt',
@@ -1925,19 +1867,26 @@ format: 'a4',
 orientation: 'portrait'
 },
 pagebreak: {
-mode: ['avoid-all', 'css', 'legacy'],
-avoid: ['img', 'svg', '.katex-display', '.dot-diagram-container', 'pre', 'table', 'blockquote']
+mode: ['css', 'legacy'],
+avoid: ['img', 'svg', '.katex-display', '.dot-diagram-container', 'pre', 'table', 'blockquote', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']
 }
 };
+
+// Экспортируем
 await html2pdf().set(options).from(clone).save();
+
+// Обновление статистики
 downloadCount++;
 localStorage.setItem('downloadCount', downloadCount.toString());
 document.getElementById('statDownloads').textContent = downloadCount;
+
 showNotification(`Документ "${filename}.pdf" успешно сохранен!`, 'success');
+
 } catch (error) {
 console.error('Ошибка экспорта PDF:', error);
 showNotification(`Ошибка экспорта: ${error.message || 'Неизвестная ошибка'}`, 'error');
 } finally {
+// Очистка временных элементов
 const tempContainers = document.querySelectorAll('div[style*="position: absolute"][style*="left: -9999px"]');
 tempContainers.forEach(container => {
 if (container.parentNode === document.body) {
@@ -1948,12 +1897,15 @@ pdfLoader.classList.remove('active');
 }
 }
 
+// ==================== УВЕДОМЛЕНИЯ ====================
 function showNotification(message, type = 'success', duration = 5000) {
 const notificationText = document.getElementById('notificationText');
 const icon = notification.querySelector('i');
 const progressBar = notification.querySelector('.notification-progress');
+
 notificationText.textContent = message;
 notification.className = '';
+
 switch(type) {
 case 'success':
 notification.classList.add('show');
@@ -1971,12 +1923,16 @@ notification.classList.add('warning');
 icon.className = 'fas fa-exclamation-triangle warning';
 break;
 }
+
+// Сброс анимации прогресс-бара
 if (progressBar) {
 progressBar.style.animation = 'none';
 setTimeout(() => {
 progressBar.style.animation = 'progress 5s linear forwards';
 }, 10);
 }
+
+// Автоматическое скрытие
 if (duration > 0) {
 setTimeout(() => {
 notification.classList.remove('show');
@@ -1988,6 +1944,7 @@ function closeNotification() {
 notification.classList.remove('show');
 }
 
+// ==================== ОБРАБОТКА ОШИБОК ====================
 window.addEventListener('error', (e) => {
 console.error('Необработанная ошибка:', e.error);
 if (e.error && e.error.message && !e.error.message.includes('ResizeObserver')) {
@@ -2002,8 +1959,10 @@ showNotification(`Ошибка: ${e.reason.message}`, 'error');
 }
 });
 
+// Очистка кэша при закрытии страницы
 window.addEventListener('beforeunload', () => {
 imageCache = {};
+imageCounter = 0;
 });
 </script>
 </body>
