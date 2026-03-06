@@ -711,6 +711,14 @@ padding: 0 10px;
 color: var(--text-secondary);
 font-size: 1.2em;
 }
+.preview-content img {
+max-width: 100%;
+height: auto;
+display: block;
+margin: 1em auto;
+border-radius: 8px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
 .footer-container {
 display: flex;
 justify-content: space-between;
@@ -1040,14 +1048,13 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 <li>Полная поддержка Markdown форматирования</li>
 <li>Рендеринг математических формул через KaTeX</li>
 <li>Поддержка DOT-диаграмм (Graphviz)</li>
+<li>Вставка изображений из буфера обмена</li>
 <li>Светлая и тёмная темы</li>
 <li>Экспорт в PDF с сохранением форматирования</li>
-<li>Встроенный поиск по документу</li>
-<li>Автоматическое форматирование таблиц</li>
 </ul>
 <blockquote>
 <p>Используйте <code>```dot ... ```</code> для создания диаграмм Graphviz.</p>
-<p>Нажмите <code>Ctrl+F</code> для поиска по документу.</p>
+<p>Нажмите <code>Ctrl+V</code> для вставки изображения из буфера обмена.</p>
 </blockquote>
 <h2><i class="fas fa-chart-line"></i> Статистика использования</h2>
 <div style="display: flex; gap: 20px; margin-top: 15px;">
@@ -1225,8 +1232,7 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 </div>
 <div class="editor-container">
 <div class="editor-wrapper">
-<textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш документ в формате Markdown..."># Новый документ
-Начните писать здесь...</textarea>
+<textarea class="editor" id="markdownEditor" placeholder="Начните писать ваш документ в формате Markdown... (Ctrl+V для вставки изображения)"></textarea>
 </div>
 </div>
 </div>
@@ -1291,6 +1297,8 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
 <script>
 let graphvizInstance = null;
 let isLocalFile = window.location.protocol === 'file:';
@@ -1316,6 +1324,7 @@ let toggleSearchBtn = null;
 let clearEditorBtn = null;
 let downloadCount = 0;
 let totalChars = 0;
+let imageCache = {};
 
 document.addEventListener('DOMContentLoaded', async () => {
 editor = document.getElementById('markdownEditor');
@@ -1351,7 +1360,7 @@ loadGraphviz();
 setupEventListeners();
 
 setTimeout(() => {
-showNotification('Добро пожаловать в Markdown2PDF! Нажмите Ctrl+F для поиска по документу.', 'success', 6000);
+showNotification('Добро пожаловать! Используйте Ctrl+V для вставки изображений.', 'success', 6000);
 }, 1000);
 });
 
@@ -1430,6 +1439,7 @@ return null;
 
 function setupEventListeners() {
 editor.addEventListener('input', updatePreview);
+editor.addEventListener('paste', handlePaste);
 document.querySelectorAll('.tool-btn[data-format]').forEach(btn => {
 btn.addEventListener('click', () => {
 const format = btn.dataset.format;
@@ -1523,6 +1533,30 @@ editor.addEventListener('focus', highlightCurrentLine);
 editor.addEventListener('blur', () => {
 editor.classList.remove('current-line');
 });
+}
+
+function handlePaste(e) {
+const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+for (let item of items) {
+if (item.type.indexOf('image') !== -1) {
+e.preventDefault();
+const blob = item.getAsFile();
+const reader = new FileReader();
+reader.onload = (event) => {
+const base64 = event.target.result;
+const imageId = 'img_' + Date.now();
+imageCache[imageId] = base64;
+const markdown = `\n![Вставленное изображение](${base64})\n`;
+const startPos = editor.selectionStart;
+editor.value = editor.value.substring(0, startPos) + markdown + editor.value.substring(editor.selectionEnd);
+editor.selectionStart = editor.selectionEnd = startPos + markdown.length;
+editor.focus();
+updatePreview();
+showNotification('Изображение вставлено из буфера обмена', 'success', 3000);
+};
+reader.readAsDataURL(blob);
+}
+}
 }
 
 function applyFormat(format) {
@@ -1756,8 +1790,8 @@ headerIds: false
 });
 const clean = DOMPurify.sanitize(html, {
 USE_PROFILES: { html: true },
-ADD_TAGS: ['svg', 'g', 'path', 'circle', 'rect', 'polygon', 'polyline', 'line', 'ellipse', 'text', 'image'],
-ADD_ATTR: ['d', 'x', 'y', 'width', 'height', 'r', 'cx', 'cy', 'rx', 'ry', 'points', 'x1', 'y1', 'x2', 'y2', 'transform', 'fill', 'stroke', 'stroke-width', 'viewBox', 'xmlns', 'style', 'class', 'href', 'preserveAspectRatio']
+ADD_TAGS: ['svg', 'g', 'path', 'circle', 'rect', 'polygon', 'polyline', 'line', 'ellipse', 'text', 'image', 'img'],
+ADD_ATTR: ['d', 'x', 'y', 'width', 'height', 'r', 'cx', 'cy', 'rx', 'ry', 'points', 'x1', 'y1', 'x2', 'y2', 'transform', 'fill', 'stroke', 'stroke-width', 'viewBox', 'xmlns', 'style', 'class', 'href', 'preserveAspectRatio', 'src', 'alt']
 });
 preview.innerHTML = clean;
 if (window.renderMathInElement) {
@@ -1800,8 +1834,11 @@ container.setAttribute('data-rendered', 'true');
 container.style.background = 'white';
 container.style.padding = '0';
 container.style.border = 'none';
-container.querySelector('svg').style.maxWidth = '100%';
-container.querySelector('svg').style.height = 'auto';
+const svgEl = container.querySelector('svg');
+if (svgEl) {
+svgEl.style.maxWidth = '100%';
+svgEl.style.height = 'auto';
+}
 } else {
 container.innerHTML = `
 <div class="dot-diagram-placeholder">
@@ -1963,6 +2000,10 @@ console.error('Необработанное промис-исключение:',
 if (e.reason && e.reason.message) {
 showNotification(`Ошибка: ${e.reason.message}`, 'error');
 }
+});
+
+window.addEventListener('beforeunload', () => {
+imageCache = {};
 });
 </script>
 </body>
