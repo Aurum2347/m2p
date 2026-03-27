@@ -34,12 +34,20 @@ document.addEventListener('DOMContentLoaded', function() {
     insertQuoteBtn = document.getElementById('insertQuote');
     insertTableBtn = document.getElementById('insertTable');
     
+    // Check if all elements exist
+    if (!input || !preview) {
+        console.error('Required elements not found');
+        return;
+    }
+    
     // Initialize the app
     initApp();
 });
 
 // Insert text at cursor helper
 function insertTextAtCursor(text) {
+    if (!input) return;
+    
     const startPos = input.selectionStart;
     const endPos = input.selectionEnd;
     
@@ -56,13 +64,17 @@ function insertTextAtCursor(text) {
 function initApp() {
     // Modal functions
     function showModal(modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
     }
     
     function hideModal(modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
     }
     
     // Make hideModal global for onclick handlers
@@ -78,14 +90,23 @@ function initApp() {
     });
     
     // Info modal
-    showInfoBtn.addEventListener('click', () => showModal(infoModal));
-    closeInfoModalBtn.addEventListener('click', () => hideModal(infoModal));
+    if (showInfoBtn && infoModal) {
+        showInfoBtn.addEventListener('click', () => showModal(infoModal));
+    }
+    if (closeInfoModalBtn && infoModal) {
+        closeInfoModalBtn.addEventListener('click', () => hideModal(infoModal));
+    }
     
     // Heading dropdown
-    insertHeadingBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        document.querySelector('.dropdown').classList.toggle('active');
-    });
+    if (insertHeadingBtn) {
+        insertHeadingBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = document.querySelector('.dropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('active');
+            }
+        });
+    }
     
     document.addEventListener('click', () => {
         const dropdown = document.querySelector('.dropdown');
@@ -94,144 +115,182 @@ function initApp() {
         }
     });
     
-    headingMenu.addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON') {
-            const level = e.target.dataset.level;
-            const hashes = '#'.repeat(parseInt(level));
-            insertTextAtCursor(hashes + ' Заголовок');
-        }
-    });
-    
-    // Tool button handlers
-    insertBoldBtn.addEventListener('click', () => insertTextAtCursor('****'));
-    insertItalicBtn.addEventListener('click', () => insertTextAtCursor('__'));
-    insertListBtn.addEventListener('click', () => insertTextAtCursor('- Элемент списка\n'));
-    insertLinkBtn.addEventListener('click', () => insertTextAtCursor('[текст](https://example.com)'));
-    insertImageBtn.addEventListener('click', () => insertTextAtCursor('![описание](https://example.com/image.jpg)'));
-    insertCodeBtn.addEventListener('click', () => insertTextAtCursor('```\nкод\n```'));
-    insertQuoteBtn.addEventListener('click', () => insertTextAtCursor('> Цитата\n'));
-    
-    // Table insertion
-    insertTableBtn.addEventListener('click', () => {
-        const table = '| Заголовок 1 | Заголовок 2 | Заголовок 3 |\n|-------------|-------------|-------------|\n| Ячейка 1    | Ячейка 2    | Ячейка 3    |\n| Ячейка 4    | Ячейка 5    | Ячейка 6    |';
-        insertTextAtCursor(table + '\n');
-    });
-    
-    // Update preview function
-    function updatePreview() {
-        const text = input.value;
-        const html = marked.parse(text);
-        preview.innerHTML = DOMPurify.sanitize(html);
-        
-        // Apply font settings
-        preview.style.fontSize = fontSizeSelect.value + 'px';
-        preview.style.fontFamily = textFontSelect.value;
-        
-        // Style images
-        preview.querySelectorAll('img').forEach(img => {
-            img.style.maxWidth = '100%';
-            img.style.height = 'auto';
+    // Heading menu
+    if (headingMenu) {
+        headingMenu.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                const level = e.target.dataset.level;
+                if (level) {
+                    const hashes = '#'.repeat(parseInt(level));
+                    insertTextAtCursor(hashes + ' Заголовок');
+                }
+            }
         });
     }
     
+    // Tool button handlers
+    if (insertBoldBtn) insertBoldBtn.addEventListener('click', () => insertTextAtCursor('****'));
+    if (insertItalicBtn) insertItalicBtn.addEventListener('click', () => insertTextAtCursor('__'));
+    if (insertListBtn) insertListBtn.addEventListener('click', () => insertTextAtCursor('- Элемент списка\n'));
+    if (insertLinkBtn) insertLinkBtn.addEventListener('click', () => insertTextAtCursor('[текст](https://example.com)'));
+    if (insertImageBtn) insertImageBtn.addEventListener('click', () => insertTextAtCursor('![описание](https://example.com/image.jpg)'));
+    if (insertCodeBtn) insertCodeBtn.addEventListener('click', () => insertTextAtCursor('```\nкод\n```'));
+    if (insertQuoteBtn) insertQuoteBtn.addEventListener('click', () => insertTextAtCursor('> Цитата\n'));
+    
+    // Table insertion
+    if (insertTableBtn) {
+        insertTableBtn.addEventListener('click', () => {
+            const table = '| Заголовок 1 | Заголовок 2 | Заголовок 3 |\n|-------------|-------------|-------------|\n| Ячейка 1    | Ячейка 2    | Ячейка 3    |\n| Ячейка 4    | Ячейка 5    | Ячейка 6    |';
+            insertTextAtCursor(table + '\n');
+        });
+    }
+    
+    // Update preview function
+    function updatePreview() {
+        if (!input || !preview) return;
+        
+        const text = input.value;
+        if (typeof marked !== 'undefined') {
+            const html = marked.parse(text);
+            if (typeof DOMPurify !== 'undefined') {
+                preview.innerHTML = DOMPurify.sanitize(html);
+            } else {
+                preview.innerHTML = html;
+            }
+            
+            // Apply font settings
+            if (fontSizeSelect) {
+                preview.style.fontSize = fontSizeSelect.value + 'px';
+            }
+            if (textFontSelect) {
+                preview.style.fontFamily = textFontSelect.value;
+            }
+            
+            // Style images
+            preview.querySelectorAll('img').forEach(img => {
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+            });
+        }
+    }
+    
     // Font size change
-    fontSizeSelect.addEventListener('change', updatePreview);
-    textFontSelect.addEventListener('change', updatePreview);
+    if (fontSizeSelect) {
+        fontSizeSelect.addEventListener('change', updatePreview);
+    }
+    if (textFontSelect) {
+        textFontSelect.addEventListener('change', updatePreview);
+    }
     
     // Input event
-    input.addEventListener('input', updatePreview);
+    if (input) {
+        input.addEventListener('input', updatePreview);
+    }
     
     // Download PDF
-    downloadPDFBtn.addEventListener('click', async () => {
-        const filename = filenameInput.value.trim() || 'document';
-        
-        // Show loader
-        loader.classList.add('active');
-        
-        try {
-            const element = document.createElement('div');
-            element.style.width = '595pt';
-            element.style.padding = '40pt';
-            element.style.fontFamily = textFontSelect.value;
-            element.style.fontSize = fontSizeSelect.value + 'px';
-            element.style.color = '#333';
-            element.style.background = '#fff';
+    if (downloadPDFBtn) {
+        downloadPDFBtn.addEventListener('click', async () => {
+            if (!filenameInput) return;
             
-            const html = marked.parse(input.value);
-            element.innerHTML = DOMPurify.sanitize(html);
+            const filename = filenameInput.value.trim() || 'document';
             
-            // Style for PDF
-            element.querySelectorAll('h1, h2, h3').forEach(el => {
-                el.style.marginTop = '1em';
-                el.style.marginBottom = '0.5em';
-                el.style.fontWeight = '600';
-            });
+            // Show loader
+            if (loader) loader.classList.add('active');
             
-            element.querySelectorAll('p').forEach(el => {
-                el.style.marginBottom = '1em';
-            });
-            
-            element.querySelectorAll('ul, ol').forEach(el => {
-                el.style.marginBottom = '1em';
-                el.style.paddingLeft = '2em';
-            });
-            
-            element.querySelectorAll('blockquote').forEach(el => {
-                el.style.borderLeft = '3px solid #1a73e8';
-                el.style.paddingLeft = '16px';
-                el.style.margin = '16px 0';
-                el.style.color = '#5f6368';
-                el.style.background = '#f8f9fa';
-                el.style.padding = '8px 16px';
-            });
-            
-            element.querySelectorAll('table').forEach(el => {
-                el.style.width = '100%';
-                el.style.borderCollapse = 'collapse';
-                el.style.margin = '16px 0';
-            });
-            
-            element.querySelectorAll('th, td').forEach(el => {
-                el.style.border = '1px solid #dadce0';
-                el.style.padding = '8px 16px';
-                el.style.textAlign = 'left';
-            });
-            
-            element.querySelectorAll('th').forEach(el => {
-                el.style.background = '#f8f9fa';
-                el.style.fontWeight = '600';
-            });
-            
-            element.querySelectorAll('pre').forEach(el => {
-                el.style.background = '#f1f3f4';
-                el.style.padding = '16px';
-                el.style.borderRadius = '8px';
-                el.style.overflowX = 'auto';
-                el.style.margin = '16px 0';
-            });
-            
-            element.querySelectorAll('code').forEach(el => {
-                el.style.fontFamily = 'JetBrains Mono, monospace';
-            });
-            
-            const opt = {
-                margin: 0,
-                filename: filename + '.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
-            };
-            
-            await html2pdf().set(opt).from(element).save();
-            
-            showNotification('PDF успешно создан!', 'success');
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            showNotification('Ошибка при создании PDF', 'error');
-        } finally {
-            loader.classList.remove('active');
-        }
-    });
+            try {
+                const element = document.createElement('div');
+                element.style.width = '595pt';
+                element.style.padding = '40pt';
+                element.style.fontFamily = textFontSelect ? textFontSelect.value : 'Arial';
+                element.style.fontSize = (fontSizeSelect ? fontSizeSelect.value : '14') + 'px';
+                element.style.color = '#333';
+                element.style.background = '#fff';
+                
+                if (typeof marked !== 'undefined') {
+                    const html = marked.parse(input.value);
+                    if (typeof DOMPurify !== 'undefined') {
+                        element.innerHTML = DOMPurify.sanitize(html);
+                    } else {
+                        element.innerHTML = html;
+                    }
+                }
+                
+                // Style for PDF
+                element.querySelectorAll('h1, h2, h3').forEach(el => {
+                    el.style.marginTop = '1em';
+                    el.style.marginBottom = '0.5em';
+                    el.style.fontWeight = '600';
+                });
+                
+                element.querySelectorAll('p').forEach(el => {
+                    el.style.marginBottom = '1em';
+                });
+                
+                element.querySelectorAll('ul, ol').forEach(el => {
+                    el.style.marginBottom = '1em';
+                    el.style.paddingLeft = '2em';
+                });
+                
+                element.querySelectorAll('blockquote').forEach(el => {
+                    el.style.borderLeft = '3px solid #1a73e8';
+                    el.style.paddingLeft = '16px';
+                    el.style.margin = '16px 0';
+                    el.style.color = '#5f6368';
+                    el.style.background = '#f8f9fa';
+                    el.style.padding = '8px 16px';
+                });
+                
+                element.querySelectorAll('table').forEach(el => {
+                    el.style.width = '100%';
+                    el.style.borderCollapse = 'collapse';
+                    el.style.margin = '16px 0';
+                });
+                
+                element.querySelectorAll('th, td').forEach(el => {
+                    el.style.border = '1px solid #dadce0';
+                    el.style.padding = '8px 16px';
+                    el.style.textAlign = 'left';
+                });
+                
+                element.querySelectorAll('th').forEach(el => {
+                    el.style.background = '#f8f9fa';
+                    el.style.fontWeight = '600';
+                });
+                
+                element.querySelectorAll('pre').forEach(el => {
+                    el.style.background = '#f1f3f4';
+                    el.style.padding = '16px';
+                    el.style.borderRadius = '8px';
+                    el.style.overflowX = 'auto';
+                    el.style.margin = '16px 0';
+                });
+                
+                element.querySelectorAll('code').forEach(el => {
+                    el.style.fontFamily = 'JetBrains Mono, monospace';
+                });
+                
+                if (typeof html2pdf !== 'undefined') {
+                    const opt = {
+                        margin: 0,
+                        filename: filename + '.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2 },
+                        jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
+                    };
+                    
+                    await html2pdf().set(opt).from(element).save();
+                    showNotification('PDF успешно создан!', 'success');
+                } else {
+                    showNotification('Библиотека html2pdf не загружена', 'error');
+                }
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showNotification('Ошибка при создании PDF', 'error');
+            } finally {
+                if (loader) loader.classList.remove('active');
+            }
+        });
+    }
     
     // Notification function
     function showNotification(message, type) {
@@ -239,12 +298,14 @@ function initApp() {
         if (messageEl) {
             messageEl.textContent = message;
         }
-        notification.className = 'notification ' + (type || 'success');
-        notification.classList.add('show');
-        
-        setTimeout(() => {
-            notification.classList.remove('show');
-        }, 3000);
+        if (notification) {
+            notification.className = 'notification ' + (type || 'success');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
     }
     
     // Set initial content

@@ -1,23 +1,23 @@
-/* Markdown to PDF - Dark Modern Styles */
+/* Markdown to PDF - Clean Dark Theme Styles */
 
 :root {
-    /* Colors - Dark Theme Only */
-    --bg-primary: #1a1a2e;
-    --bg-secondary: #16213e;
-    --bg-tertiary: #0f3460;
-    --text-primary: #e8eaed;
-    --text-secondary: #9aa0a6;
-    --text-muted: #6b7280;
-    --border-color: #2d3748;
-    --accent-color: #6366f1;
-    --accent-hover: #818cf8;
-    --error-color: #ef4444;
-    --success-color: #22c55e;
+    /* Colors - Pure Dark Theme */
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2d2d2d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --text-muted: #666666;
+    --border-color: #333333;
+    --accent-color: #4a9eff;
+    --accent-hover: #6bb3ff;
+    --error-color: #ff5252;
+    --success-color: #4caf50;
     
     /* Shadows */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
     
     /* Spacing */
     --spacing-xs: 4px;
@@ -61,7 +61,6 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
-    backdrop-filter: blur(10px);
 }
 
 .header-content {
@@ -140,16 +139,17 @@ body {
     letter-spacing: -0.01em;
 }
 
-/* Toolbar */
+/* Toolbar - Horizontal Layout */
 .toolbar {
     display: flex;
-    gap: var(--spacing-sm);
     flex-wrap: wrap;
+    gap: var(--spacing-sm);
     align-items: center;
+    justify-content: flex-end;
 }
 
 .toolbar-btn {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 8px 12px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
@@ -157,10 +157,11 @@ body {
     font-size: 13px;
     color: var(--text-primary);
     transition: all var(--transition-fast);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: var(--spacing-xs);
     height: 36px;
+    white-space: nowrap;
 }
 
 .toolbar-btn:hover {
@@ -485,7 +486,6 @@ select:focus {
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    backdrop-filter: blur(4px);
 }
 
 .modal-overlay.active {
@@ -557,7 +557,6 @@ select:focus {
     align-items: center;
     justify-content: center;
     z-index: 2000;
-    backdrop-filter: blur(4px);
 }
 
 .loader-overlay.active {
@@ -595,7 +594,7 @@ select:focus {
 .notification {
     position: fixed;
     bottom: var(--spacing-lg);
-    left: var(--spacing-lg);
+    right: var(--spacing-lg);
     background: var(--bg-secondary);
     padding: var(--spacing-md) var(--spacing-lg);
     border-radius: var(--radius-md);
