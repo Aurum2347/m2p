@@ -12,11 +12,11 @@
 <body>
     <header class="header">
         <div class="header-content">
-            <h1 class="logo">
+            <div class="logo">
                 <span class="logo-icon">M</span>
-                Markdown to PDF
-            </h1>
-            <button id="showInfoBtn" class="btn btn-secondary btn-sm">
+                <span class="logo-text">Markdown to PDF</span>
+            </div>
+            <button id="showInfoBtn" class="btn btn-secondary">
                 Информация
             </button>
         </div>
@@ -27,22 +27,40 @@
             <div class="panel-header">
                 <h2 class="panel-title">Редактор Markdown</h2>
                 <div class="toolbar">
-                    <button id="insertBold" class="toolbar-btn" title="Жирный"><b>B</b></button>
-                    <button id="insertItalic" class="toolbar-btn" title="Курсив"><i>I</i></button>
+                    <button id="insertBold" class="toolbar-btn" title="Жирный">
+                        <span class="toolbar-icon"><b>B</b></span>
+                    </button>
+                    <button id="insertItalic" class="toolbar-btn" title="Курсив">
+                        <span class="toolbar-icon"><i>I</i></span>
+                    </button>
                     <div class="dropdown">
-                        <button id="insertHeading" class="toolbar-btn" title="Заголовок">H</button>
+                        <button id="insertHeading" class="toolbar-btn" title="Заголовок">
+                            <span class="toolbar-icon">H</span>
+                        </button>
                         <div id="headingMenu" class="dropdown-menu">
                             <button data-level="1">Заголовок 1</button>
                             <button data-level="2">Заголовок 2</button>
                             <button data-level="3">Заголовок 3</button>
                         </div>
                     </div>
-                    <button id="insertList" class="toolbar-btn" title="Список">• Список</button>
-                    <button id="insertLink" class="toolbar-btn" title="Ссылка">🔗</button>
-                    <button id="insertImage" class="toolbar-btn" title="Изображение">🖼️</button>
-                    <button id="insertCode" class="toolbar-btn" title="Код">&lt;/&gt;</button>
-                    <button id="insertQuote" class="toolbar-btn" title="Цитата">"</button>
-                    <button id="insertTable" class="toolbar-btn" title="Таблица">▦</button>
+                    <button id="insertList" class="toolbar-btn" title="Список">
+                        <span class="toolbar-icon">•</span> Список
+                    </button>
+                    <button id="insertLink" class="toolbar-btn" title="Ссылка">
+                        <span class="toolbar-icon">🔗</span>
+                    </button>
+                    <button id="insertImage" class="toolbar-btn" title="Изображение">
+                        <span class="toolbar-icon">🖼</span>
+                    </button>
+                    <button id="insertCode" class="toolbar-btn" title="Код">
+                        <span class="toolbar-icon">&lt;/&gt;</span>
+                    </button>
+                    <button id="insertQuote" class="toolbar-btn" title="Цитата">
+                        <span class="toolbar-icon">"</span>
+                    </button>
+                    <button id="insertTable" class="toolbar-btn" title="Таблица">
+                        <span class="toolbar-icon">▦</span>
+                    </button>
                 </div>
             </div>
             <textarea id="input" placeholder="Введите ваш Markdown текст здесь..."></textarea>
@@ -52,16 +70,16 @@
             <div class="panel-header">
                 <h2 class="panel-title">Предпросмотр</h2>
                 <div class="settings">
-                    <label>
-                        Шрифт:
+                    <label class="setting-label">
+                        <span>Шрифт:</span>
                         <select id="textFont">
                             <option value="'Inter', sans-serif">Inter</option>
                             <option value="'Georgia', serif">Georgia</option>
                             <option value="'Times New Roman', serif">Times New Roman</option>
                         </select>
                     </label>
-                    <label>
-                        Размер:
+                    <label class="setting-label">
+                        <span>Размер:</span>
                         <select id="fontSize">
                             <option value="12">12px</option>
                             <option value="14" selected>14px</option>
